@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Hexly — браузерная игра о заботе о виртуальном питомце."
+    />
+    <title>Hexly — виртуальный питомец</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <script type="module" src="./js/main.js"></script>
+  </head>
+
+  <body>
+    <header class="app-header">
+      <a class="brand" href="#" aria-label="Hexly — на главную">
+        <span class="brand__mark" aria-hidden="true">⬡</span>
+        <span>Hexly</span>
+      </a>
+
+      <div class="wallet" aria-label="Баланс">
+        <span aria-hidden="true">🪙</span>
+        <span id="coin-balance">0</span>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="pet-card" aria-labelledby="pet-name">
+        <div class="pet-card__heading">
+          <div>
+            <p class="eyebrow">Твой питомец</p>
+            <h1 id="pet-name">Имя питомца</h1>
+          </div>
+          <span class="level-badge">Уровень <span id="pet-level">1</span></span>
+        </div>
+
+        <div class="pet-stage" aria-label="Питомец">
+          <div class="pet-stage__decoration pet-stage__decoration--left" aria-hidden="true"></div>
+          <div
+            id="pet-avatar"
+            class="pet-avatar"
+            role="img"
+            aria-label="Весёлый виртуальный питомец"
+          >
+            <span aria-hidden="true">🐾</span>
+          </div>
+          <p id="pet-message" class="pet-message" aria-live="polite">
+            Я готов к приключениям!
+          </p>
+        </div>
+
+        <div class="stats" aria-label="Характеристики питомца">
+          <article class="stat" data-stat="hunger">
+            <div class="stat__header">
+              <span>🍎 Сытость</span>
+              <output id="hunger-value" for="hunger-progress">70%</output>
+            </div>
+            <progress id="hunger-progress" max="100" value="70">70%</progress>
+          </article>
+
+          <article class="stat" data-stat="mood">
+            <div class="stat__header">
+              <span>💛 Настроение</span>
+              <output id="mood-value" for="mood-progress">80%</output>
+            </div>
+            <progress id="mood-progress" max="100" value="80">80%</progress>
+          </article>
+
+          <article class="stat" data-stat="energy">
+            <div class="stat__header">
+              <span>⚡ Энергия</span>
+              <output id="energy-value" for="energy-progress">60%</output>
+            </div>
+            <progress id="energy-progress" max="100" value="60">60%</progress>
+          </article>
+
+          <article class="stat" data-stat="health">
+            <div class="stat__header">
+              <span>💚 Здоровье</span>
+              <output id="health-value" for="health-progress">90%</output>
+            </div>
+            <progress id="health-progress" max="100" value="90">90%</progress>
+          </article>
+        </div>
+
+        <div class="actions" aria-label="Действия с питомцем">
+          <button class="action-button" type="button" data-action="feed">
+            <span class="action-button__icon" aria-hidden="true">🥕</span>
+            Покормить
+          </button>
+          <button class="action-button" type="button" data-action="play">
+            <span class="action-button__icon" aria-hidden="true">🪀</span>
+            Поиграть
+          </button>
+          <button class="action-button" type="button" data-action="sleep">
+            <span class="action-button__icon" aria-hidden="true">🌙</span>
+            Уложить спать
+          </button>
+        </div>
+      </section>
+
+      <section class="content-card" aria-labelledby="collection-title">
+        <div class="tabs" role="tablist" aria-label="Разделы приложения">
+          <button
+            id="inventory-tab"
+            class="tab is-active"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="inventory-panel"
+            data-tab="inventory"
+          >
+            Инвентарь
+          </button>
+          <button
+            id="shop-tab"
+            class="tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="shop-panel"
+            data-tab="shop"
+            tabindex="-1"
+          >
+            Магазин
+          </button>
+          <button
+            id="history-tab"
+            class="tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="history-panel"
+            data-tab="history"
+            tabindex="-1"
+          >
+            История
+          </button>
+        </div>
+
+        <div
+          id="inventory-panel"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="inventory-tab"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Коллекция</p>
+              <h2 id="collection-title">Твои предметы</h2>
+            </div>
+            <span id="inventory-count" class="counter">0 предметов</span>
+          </div>
+
+          <div id="inventory-list" class="item-grid">
+            <div class="empty-state">
+              <span class="empty-state__icon" aria-hidden="true">🎒</span>
+              <h3>Инвентарь пока пуст</h3>
+              <p>Купленные и полученные предметы появятся здесь.</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="shop-panel"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="shop-tab"
+          hidden
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Покупки</p>
+              <h2>Магазин</h2>
+            </div>
+          </div>
+          <div id="shop-list" class="item-grid"></div>
+        </div>
+
+        <div
+          id="history-panel"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="history-tab"
+          hidden
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Дневник</p>
+              <h2>История событий</h2>
+            </div>
+          </div>
+          <ol id="event-history" class="event-list"></ol>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="welcome-dialog" class="dialog">
+      <form id="welcome-form" class="dialog__content" method="dialog">
+        <span class="dialog__icon" aria-hidden="true">🐣</span>
+        <div>
+          <p class="eyebrow">Новый друг</p>
+          <h2>Как назовём питомца?</h2>
+        </div>
+
+        <label class="field">
+          <span>Имя</span>
+          <input
+            id="pet-name-input"
+            name="petName"
+            type="text"
+            minlength="2"
+            maxlength="16"
+            placeholder="Например, Хексли"
+            autocomplete="off"
+            required
+          />
+        </label>
+
+        <button class="primary-button" type="submit">Начать игру</button>
+      </form>
+    </dialog>
+
+    <div id="notification-region" class="notifications" aria-live="polite"></div>
+
+    <noscript>
+      <p class="noscript-message">Для работы приложения необходимо включить JavaScript.</p>
+    </noscript>
+  </body>
+</html>
