@@ -55,7 +55,3 @@ python3 -m http.server 8000
 ├── index.html
 └── README.md
 ```
-
-## Публикация
-
-
