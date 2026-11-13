@@ -2,9 +2,6 @@
 
 Учебное веб-приложение для управления задачами. Проект предназначен для демонстрации работы с DOM нативными средствами JavaScript без библиотек и фреймворков.
 
-## Рабочая версия
-
-[Открыть Flowboard](https://flowboard-kanban-20261113.costalacoste.chatgpt.site)
 
 ## Возможности
 
@@ -61,6 +58,4 @@ python3 -m http.server 8000
 
 ## Публикация
 
-Приложение опубликовано с помощью Sites:
 
-<https://flowboard-kanban-20261113.costalacoste.chatgpt.site>
