@@ -1,9 +1,13 @@
-// Хранение данных в localStorage.
-// TODO: реализовать загрузку и сохранение состояния доски.
 const STORAGE_KEY = "flowboard-tasks";
 
 export function saveTasks(tasks) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    return true;
+  } catch (error) {
+    console.error("Не удалось сохранить задачи:", error);
+    return false;
+  }
 }
 
 export function loadTasks() {
@@ -14,13 +18,10 @@ export function loadTasks() {
   }
 
   try {
-    return JSON.parse(savedTasks);
-  } catch {
+    const parsedTasks = JSON.parse(savedTasks);
+    return Array.isArray(parsedTasks) ? parsedTasks : [];
+  } catch (error) {
+    console.error("Не удалось загрузить задачи:", error);
     return [];
   }
-}
-
-function commitChanges() {
-  saveTasks(getTasks());
-  renderBoard(getTasks());
 }

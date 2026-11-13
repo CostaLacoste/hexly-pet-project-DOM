@@ -1,11 +1,11 @@
-// Состояние канбан-доски.
-// TODO: описать структуру данных задач и функции изменения состояния.
 let tasks = [];
 
 export function getTasks() {
-  return tasks;
+  return tasks.map((task) => ({ ...task }));
 }
 
 export function setTasks(newTasks) {
-  tasks = newTasks;
+  tasks = Array.isArray(newTasks)
+    ? newTasks.map((task) => ({ ...task }))
+    : [];
 }

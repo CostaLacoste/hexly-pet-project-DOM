@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Flowboard — учебная канбан-доска для управления задачами."
+    />
+    <title>Flowboard — канбан-доска</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <script type="module" src="./js/main.js"></script>
+  </head>
+
+  <body>
+    <header class="app-header">
+      <a class="brand" href="#" aria-label="Flowboard — на главную">
+        <span class="brand__mark" aria-hidden="true">F</span>
+        <span>Flowboard</span>
+      </a>
+
+      <button class="primary-button" type="button" data-action="open-task-dialog">
+        <span aria-hidden="true">＋</span>
+        Новая задача
+      </button>
+    </header>
+
+    <main class="app-shell">
+      <section class="board-heading" aria-labelledby="board-title">
+        <div>
+          <p class="eyebrow">Мой проект</p>
+          <h1 id="board-title">Рабочая доска</h1>
+          <p class="board-heading__description">
+            Планируйте задачи и следите за их выполнением.
+          </p>
+        </div>
+
+        <div class="board-summary" aria-label="Статистика доски">
+          <span>Всего задач</span>
+          <strong id="total-task-count">0</strong>
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="Фильтры задач">
+        <label class="search-field">
+          <span class="visually-hidden">Поиск задач</span>
+          <span aria-hidden="true">⌕</span>
+          <input
+            id="task-search"
+            type="search"
+            placeholder="Найти задачу..."
+            autocomplete="off"
+          />
+        </label>
+
+        <label class="select-field">
+          <span class="visually-hidden">Фильтр по приоритету</span>
+          <select id="priority-filter">
+            <option value="all">Все приоритеты</option>
+            <option value="low">Низкий</option>
+            <option value="medium">Средний</option>
+            <option value="high">Высокий</option>
+          </select>
+        </label>
+
+        <button class="secondary-button" type="button" data-action="reset-filters">
+          Сбросить
+        </button>
+      </section>
+
+      <section class="kanban-board" aria-label="Канбан-доска">
+        <article class="kanban-column" data-status="todo">
+          <header class="column-header">
+            <div class="column-title">
+              <span class="status-dot status-dot--todo" aria-hidden="true"></span>
+              <h2>Нужно сделать</h2>
+            </div>
+            <span class="task-counter" data-count-for="todo">0</span>
+          </header>
+
+          <div
+            id="todo-list"
+            class="task-list"
+            data-task-list="todo"
+            aria-label="Задачи, которые нужно сделать"
+          >
+            <div class="empty-state" data-empty-state="todo">
+              <span aria-hidden="true">📝</span>
+              <p>Здесь появятся новые задачи</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="kanban-column" data-status="progress">
+          <header class="column-header">
+            <div class="column-title">
+              <span class="status-dot status-dot--progress" aria-hidden="true"></span>
+              <h2>В работе</h2>
+            </div>
+            <span class="task-counter" data-count-for="progress">0</span>
+          </header>
+
+          <div
+            id="progress-list"
+            class="task-list"
+            data-task-list="progress"
+            aria-label="Задачи в работе"
+          >
+            <div class="empty-state" data-empty-state="progress">
+              <span aria-hidden="true">⚙️</span>
+              <p>Переместите сюда начатые задачи</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="kanban-column" data-status="done">
+          <header class="column-header">
+            <div class="column-title">
+              <span class="status-dot status-dot--done" aria-hidden="true"></span>
+              <h2>Готово</h2>
+            </div>
+            <span class="task-counter" data-count-for="done">0</span>
+          </header>
+
+          <div
+            id="done-list"
+            class="task-list"
+            data-task-list="done"
+            aria-label="Выполненные задачи"
+          >
+            <div class="empty-state" data-empty-state="done">
+              <span aria-hidden="true">✅</span>
+              <p>Выполненные задачи появятся здесь</p>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <dialog id="task-dialog" class="dialog" aria-labelledby="task-dialog-title">
+      <form id="task-form" class="dialog__content" method="dialog">
+        <div class="dialog__header">
+          <div>
+            <p class="eyebrow">Задача</p>
+            <h2 id="task-dialog-title">Новая задача</h2>
+          </div>
+          <button
+            class="icon-button"
+            type="button"
+            aria-label="Закрыть окно"
+            data-action="close-task-dialog"
+          >
+            ×
+          </button>
+        </div>
+
+        <input id="task-id" name="taskId" type="hidden" />
+
+        <label class="form-field">
+          <span>Название</span>
+          <input
+            id="task-title"
+            name="title"
+            type="text"
+            maxlength="80"
+            placeholder="Что нужно сделать?"
+            required
+          />
+        </label>
+
+        <label class="form-field">
+          <span>Описание</span>
+          <textarea
+            id="task-description"
+            name="description"
+            rows="4"
+            maxlength="300"
+            placeholder="Добавьте подробности"
+          ></textarea>
+        </label>
+
+        <div class="form-row">
+          <label class="form-field">
+            <span>Статус</span>
+            <select id="task-status" name="status">
+              <option value="todo">Нужно сделать</option>
+              <option value="progress">В работе</option>
+              <option value="done">Готово</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Приоритет</span>
+            <select id="task-priority" name="priority">
+              <option value="low">Низкий</option>
+              <option value="medium">Средний</option>
+              <option value="high">Высокий</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="form-field">
+          <span>Срок выполнения</span>
+          <input id="task-deadline" name="deadline" type="date" />
+        </label>
+
+        <div class="dialog__actions">
+          <button class="secondary-button" type="button" data-action="close-task-dialog">
+            Отмена
+          </button>
+          <button class="primary-button" type="submit">Сохранить</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="delete-dialog" class="dialog dialog--small" aria-labelledby="delete-dialog-title">
+      <div class="dialog__content">
+        <div>
+          <p class="eyebrow">Подтверждение</p>
+          <h2 id="delete-dialog-title">Удалить задачу?</h2>
+          <p class="dialog__description">Это действие нельзя будет отменить.</p>
+        </div>
+
+        <div class="dialog__actions">
+          <button class="secondary-button" type="button" data-action="cancel-delete">
+            Отмена
+          </button>
+          <button class="danger-button" type="button" data-action="confirm-delete">
+            Удалить
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <template id="task-card-template">
+      <article class="task-card" draggable="true">
+        <div class="task-card__header">
+          <span class="priority-badge"></span>
+        </div>
+        <h3 class="task-card__title"></h3>
+        <p class="task-card__description"></p>
+        <footer class="task-card__footer">
+          <time class="task-card__deadline"></time>
+          <div class="task-card__actions">
+            <button class="card-action" type="button" data-action="edit-task">Изменить</button>
+            <button class="card-action card-action--danger" type="button" data-action="delete-task">
+              Удалить
+            </button>
+          </div>
+        </footer>
+      </article>
+    </template>
+
+    <div id="notification-region" class="notifications" aria-live="polite"></div>
+
+    <noscript>
+      <p class="noscript-message">Для работы приложения необходимо включить JavaScript.</p>
+    </noscript>
+  </body>
+</html>

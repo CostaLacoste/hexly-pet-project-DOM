@@ -226,7 +226,17 @@
   display: grid;
   gap: 0.75rem;
   min-height: 390px;
+  padding: 0.25rem;
+  border: 2px solid transparent;
   border-radius: var(--radius-small);
+  transition:
+    background-color var(--transition),
+    border-color var(--transition);
+}
+
+.task-list.is-drag-over {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
 }
 
 .empty-state {
@@ -258,6 +268,26 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-small);
   box-shadow: 0 5px 16px rgb(31 38 61 / 5%);
+  cursor: grab;
+  transition:
+    opacity var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.task-card:hover {
+  box-shadow: 0 9px 24px rgb(31 38 61 / 10%);
+  transform: translateY(-2px);
+}
+
+.task-card.is-dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+}
+
+.task-card--done .task-card__title {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
 }
 
 .task-card__description {
@@ -277,6 +307,11 @@
   font-size: 0.75rem;
 }
 
+.task-card__deadline--overdue {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
 .task-card__actions {
   gap: 0.35rem;
 }
@@ -288,6 +323,21 @@
   font-weight: 800;
   background: var(--color-primary-soft);
   border-radius: 999px;
+}
+
+.priority-badge--low {
+  color: #526072;
+  background: #eef1f5;
+}
+
+.priority-badge--medium {
+  color: #945f0b;
+  background: #fff1d9;
+}
+
+.priority-badge--high {
+  color: #b43f49;
+  background: #ffe5e7;
 }
 
 .icon-button {
@@ -310,100 +360,6 @@
 
 .card-action--danger {
   color: var(--color-danger);
-}
-
-.dialog {
-  width: min(calc(100% - 2rem), 540px);
-  padding: 0;
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: 0;
-  border-radius: var(--radius-large);
-  box-shadow: var(--shadow-card);
-}
-
-.dialog--small {
-  width: min(calc(100% - 2rem), 420px);
-}
-
-.dialog::backdrop {
-  background: rgb(27 31 45 / 55%);
-  backdrop-filter: blur(4px);
-}
-
-.dialog__content {
-  display: grid;
-  gap: 1.2rem;
-  padding: clamp(1.25rem, 4vw, 2rem);
-}
-
-.dialog__header,
-.dialog__actions,
-.form-row {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.dialog__header {
-  align-items: start;
-  justify-content: space-between;
-}
-
-.dialog__header h2,
-.dialog--small h2 {
-  font-size: 1.5rem;
-}
-
-.dialog__actions {
-  justify-content: flex-end;
-  margin-top: 0.25rem;
-}
-
-.form-row > * {
-  flex: 1;
-}
-
-.form-field {
-  display: grid;
-  gap: 0.45rem;
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.form-field input,
-.form-field select,
-.form-field textarea {
-  width: 100%;
-  padding: 0.75rem 0.85rem;
-  color: var(--color-text);
-  resize: vertical;
-  background: var(--color-surface-muted);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-small);
-}
-
-.notifications {
-  position: fixed;
-  z-index: 10;
-  right: 1rem;
-  bottom: 1rem;
-  display: grid;
-  gap: 0.5rem;
-  width: min(calc(100% - 2rem), 340px);
-}
-
-.noscript-message {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  left: 1rem;
-  margin: 0;
-  padding: 1rem;
-  color: white;
-  text-align: center;
-  background: var(--color-danger);
-  border-radius: var(--radius-small);
 }
 
 @media (max-width: 720px) {

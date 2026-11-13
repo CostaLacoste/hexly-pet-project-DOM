@@ -137,7 +137,7 @@
       </section>
     </main>
 
-    <dialog id="task-dialog" class="dialog">
+    <dialog id="task-dialog" class="dialog" aria-labelledby="task-dialog-title">
       <form id="task-form" class="dialog__content" method="dialog">
         <div class="dialog__header">
           <div>
@@ -213,11 +213,11 @@
       </form>
     </dialog>
 
-    <dialog id="delete-dialog" class="dialog dialog--small">
+    <dialog id="delete-dialog" class="dialog dialog--small" aria-labelledby="delete-dialog-title">
       <div class="dialog__content">
         <div>
           <p class="eyebrow">Подтверждение</p>
-          <h2>Удалить задачу?</h2>
+          <h2 id="delete-dialog-title">Удалить задачу?</h2>
           <p class="dialog__description">Это действие нельзя будет отменить.</p>
         </div>
 
@@ -236,7 +236,6 @@
       <article class="task-card" draggable="true">
         <div class="task-card__header">
           <span class="priority-badge"></span>
-          <button class="icon-button" type="button" aria-label="Меню задачи">•••</button>
         </div>
         <h3 class="task-card__title"></h3>
         <p class="task-card__description"></p>

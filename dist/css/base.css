@@ -1,0 +1,82 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--color-text);
+  background: var(--color-background);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+select {
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgb(91 91 214 / 30%);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+h1 {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+h3 {
+  margin-bottom: 0.6rem;
+  font-size: 1rem;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
