@@ -1,3 +1,5 @@
+import { calculateStatistics, isTaskOverdue } from "./statistics.js";
+
 const template = document.querySelector("#task-card-template");
 const totalTaskCount = document.querySelector("#total-task-count");
 const notificationRegion = document.querySelector("#notification-region");
@@ -27,21 +29,6 @@ function formatDeadline(deadline) {
     month: "short",
     year: "numeric",
   }).format(date);
-}
-
-function isOverdue(task) {
-  if (!task.deadline || task.status === "done") {
-    return false;
-  }
-
-  const today = new Date();
-  const localToday = [
-    today.getFullYear(),
-    String(today.getMonth() + 1).padStart(2, "0"),
-    String(today.getDate()).padStart(2, "0"),
-  ].join("-");
-
-  return task.deadline < localToday;
 }
 
 function renderTags(card, task) {
@@ -95,19 +82,13 @@ function renderChecklist(card, task) {
 }
 
 function renderStats(tasks) {
-  const done = tasks.filter((task) => task.status === "done").length;
-  const overdue = tasks.filter(isOverdue).length;
-  const checklist = tasks.flatMap((task) =>
-    Array.isArray(task.checklist) ? task.checklist : [],
-  );
-  const checklistDone = checklist.filter((item) => item.done).length;
-  const percent = tasks.length === 0 ? 0 : Math.round((done / tasks.length) * 100);
+  const stats = calculateStatistics(tasks);
 
-  doneTaskCount.textContent = String(done);
-  progressValue.textContent = `${percent}%`;
-  overdueTaskCount.textContent = String(overdue);
-  checklistValue.textContent = `${checklistDone}/${checklist.length}`;
-  progressBar.style.width = `${percent}%`;
+  doneTaskCount.textContent = String(stats.done);
+  progressValue.textContent = `${stats.progress}%`;
+  overdueTaskCount.textContent = String(stats.overdue);
+  checklistValue.textContent = `${stats.checklistDone}/${stats.checklistTotal}`;
+  progressBar.style.width = `${stats.progress}%`;
 }
 
 export function createTaskCard(task) {
@@ -131,7 +112,7 @@ export function createTaskCard(task) {
   priority.classList.add(`priority-badge--${task.priority}`);
 
   if (task.deadline) {
-    const overdue = isOverdue(task);
+    const overdue = isTaskOverdue(task);
     deadline.dateTime = task.deadline;
     deadline.textContent = `${overdue ? "Просрочено" : "До"}: ${formatDeadline(task.deadline)}`;
     deadline.classList.toggle("task-card__deadline--overdue", overdue);

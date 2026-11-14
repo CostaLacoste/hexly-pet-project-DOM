@@ -32,6 +32,24 @@ python3 -m http.server 8000
 
 Затем откройте `http://localhost:8000`.
 
+## Автотесты
+
+Проект использует встроенный тестовый раннер Node.js, поэтому установка зависимостей не требуется.
+
+```bash
+npm test
+```
+
+Дополнительные режимы:
+
+```bash
+npm run test:watch
+npm run test:coverage
+```
+
+Тесты проверяют CRUD-операции, нормализацию данных, фильтры, состояние,
+работу с `localStorage` и расчёт статистики.
+
 ## Структура проекта
 
 ```text
@@ -49,9 +67,17 @@ python3 -m http.server 8000
 │   ├── filters.js
 │   ├── main.js
 │   ├── state.js
+│   ├── statistics.js
 │   ├── storage.js
 │   ├── tasks.js
 │   └── ui.js
+├── tests/
+│   ├── filters.test.js
+│   ├── state.test.js
+│   ├── statistics.test.js
+│   ├── storage.test.js
+│   └── tasks.test.js
 ├── index.html
+├── package.json
 └── README.md
 ```
