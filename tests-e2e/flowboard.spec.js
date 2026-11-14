@@ -45,6 +45,13 @@ test("темы, сортировка и клавиатурные команды"
   await page.locator("#theme-select").selectOption("dark");
   await expect(page.locator("body")).toHaveAttribute("data-theme", "dark");
 
+  for (const theme of ["cyberpunk", "newspaper", "blueprint", "candy"]) {
+    await page.locator("#theme-select").selectOption(theme);
+    await expect(page.locator("body")).toHaveAttribute("data-theme", theme);
+    expect(await page.evaluate(() => localStorage.getItem("flowboard-theme")))
+      .toBe(JSON.stringify(theme));
+  }
+
   await page.keyboard.press("n");
   await expect(page.locator("#task-dialog")).toBeVisible();
   await page.keyboard.press("Escape");

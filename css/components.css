@@ -162,6 +162,30 @@
   background-size: 24px 24px;
 }
 
+body[data-theme="cyberpunk"] .board-heading__intro {
+  background-image:
+    linear-gradient(rgb(32 219 255 / 12%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 61 172 / 10%) 1px, transparent 1px);
+}
+
+body[data-theme="blueprint"] .board-heading__intro {
+  background-image:
+    linear-gradient(rgb(13 60 120 / 10%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(13 60 120 / 10%) 1px, transparent 1px);
+}
+
+body[data-theme="newspaper"] .board-heading__intro {
+  background-image:
+    linear-gradient(rgb(9 9 9 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(9 9 9 / 7%) 1px, transparent 1px);
+}
+
+body[data-theme="candy"] .board-heading__intro {
+  background-image:
+    linear-gradient(rgb(157 112 255 / 8%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 157 206 / 11%) 1px, transparent 1px);
+}
+
 .eyebrow {
   display: inline-block;
   padding: 0.38rem 0.55rem;

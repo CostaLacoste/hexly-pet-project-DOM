@@ -21,6 +21,31 @@ body {
   background-size: 26px 26px;
 }
 
+body[data-theme="cyberpunk"] {
+  background-image:
+    linear-gradient(rgb(32 219 255 / 12%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 61 172 / 10%) 1px, transparent 1px);
+}
+
+body[data-theme="blueprint"] {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 18%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 18%) 1px, transparent 1px);
+}
+
+body[data-theme="newspaper"] {
+  background-image:
+    linear-gradient(rgb(9 9 9 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(9 9 9 / 5%) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+body[data-theme="candy"] {
+  background-image:
+    linear-gradient(rgb(157 112 255 / 9%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 157 206 / 12%) 1px, transparent 1px);
+}
+
 button,
 input,
 select,
