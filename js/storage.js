@@ -3,6 +3,7 @@ const BOARDS_KEY = "flowboard-boards";
 const ACTIVE_BOARD_KEY = "flowboard-active-board";
 const THEME_KEY = "flowboard-theme";
 const SORT_KEY = "flowboard-sort";
+const LANGUAGE_KEY = "flowboard-language";
 
 function saveValue(key, value) {
   try {
@@ -52,6 +53,7 @@ export function saveSetting(key, value) {
     activeBoard: ACTIVE_BOARD_KEY,
     theme: THEME_KEY,
     sort: SORT_KEY,
+    language: LANGUAGE_KEY,
   }[key];
   return storageKey ? saveValue(storageKey, value) : false;
 }
@@ -61,6 +63,7 @@ export function loadSetting(key, fallback) {
     activeBoard: ACTIVE_BOARD_KEY,
     theme: THEME_KEY,
     sort: SORT_KEY,
+    language: LANGUAGE_KEY,
   }[key];
   return storageKey ? loadValue(storageKey, fallback) : fallback;
 }

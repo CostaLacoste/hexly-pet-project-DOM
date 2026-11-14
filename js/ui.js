@@ -1,4 +1,5 @@
 import { calculateStatistics, isTaskOverdue } from "./statistics.js";
+import { getLocale, t } from "./i18n.js";
 
 const template = document.querySelector("#task-card-template");
 const totalTaskCount = document.querySelector("#total-task-count");
@@ -19,22 +20,13 @@ const lists = {
   done: document.querySelector('[data-task-list="done"]'),
 };
 
-const priorityLabels = {
-  low: "Низкий",
-  medium: "Средний",
-  high: "Высокий",
-};
-
-const recurrenceLabels = {
-  daily: "↻ ежедневно",
-  weekly: "↻ еженедельно",
-  monthly: "↻ ежемесячно",
-};
+const priorityLabel = (priority) => t(`priority.${priority}`);
+const recurrenceLabel = (recurrence) => t(`task.${recurrence}`);
 
 function formatDeadline(deadline) {
   const date = new Date(`${deadline}T00:00:00`);
 
-  return new Intl.DateTimeFormat("ru-RU", {
+  return new Intl.DateTimeFormat(getLocale(), {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -82,7 +74,7 @@ function renderChecklist(card, task) {
     checkbox.checked = item.done;
     checkbox.dataset.action = "toggle-checklist";
     checkbox.dataset.checklistId = item.id;
-    checkbox.setAttribute("aria-label", `Отметить пункт «${item.text}»`);
+    checkbox.setAttribute("aria-label", `${t("task.checklist")}: ${item.text}`);
 
     const text = document.createElement("span");
     text.textContent = item.text;
@@ -112,12 +104,12 @@ function renderStats(tasks) {
     item.innerHTML = `
       <span class="weekly-chart__value">${day.count}</span>
       <span class="weekly-chart__bar" style="height: ${Math.max(8, (day.count / maxCount) * 100)}%"></span>
-      <span class="weekly-chart__label">${day.label}</span>
+      <span class="weekly-chart__label">${new Intl.DateTimeFormat(getLocale(), { weekday: "short" }).format(new Date(`${day.key}T12:00:00`))}</span>
     `;
     weeklyChart.append(item);
   });
   const totalForWeek = stats.completionDays.reduce((sum, day) => sum + day.count, 0);
-  weekTotal.textContent = `${totalForWeek} ${totalForWeek === 1 ? "задача" : "задач"}`;
+  weekTotal.textContent = t("analytics.tasks", { count: totalForWeek });
 }
 
 export function createTaskCard(task) {
@@ -133,6 +125,9 @@ export function createTaskCard(task) {
     `${task.title}. Alt и стрелки — переместить задачу`,
   );
   card.querySelector(".task-card__title").textContent = task.title;
+  card.querySelector('[data-action="edit-task"]').textContent = t("task.editButton");
+  card.querySelector('[data-action="delete-task"]').textContent = t("task.deleteButton");
+  card.querySelector("[data-i18n=\"task.checklist\"]").textContent = t("task.checklist");
   renderTags(card, task);
   renderChecklist(card, task);
 
@@ -142,19 +137,19 @@ export function createTaskCard(task) {
     description.hidden = true;
   }
 
-  priority.textContent = priorityLabels[task.priority] ?? "Без приоритета";
+  priority.textContent = priorityLabel(task.priority) ?? t("priority.none");
   priority.classList.add(`priority-badge--${task.priority}`);
 
   const recurrence = card.querySelector(".recurrence-badge");
-  if (recurrenceLabels[task.recurrence]) {
+  if (["daily", "weekly", "monthly"].includes(task.recurrence)) {
     recurrence.hidden = false;
-    recurrence.textContent = recurrenceLabels[task.recurrence];
+    recurrence.textContent = recurrenceLabel(task.recurrence);
   }
 
   if (task.deadline) {
     const overdue = isTaskOverdue(task);
     deadline.dateTime = task.deadline;
-    deadline.textContent = `${overdue ? "Просрочено" : "До"}: ${formatDeadline(task.deadline)}`;
+    deadline.textContent = `${t(overdue ? "task.overdue" : "task.due")}: ${formatDeadline(task.deadline)}`;
     deadline.classList.toggle("task-card__deadline--overdue", overdue);
   } else {
     deadline.hidden = true;
@@ -191,7 +186,7 @@ export function renderArchive(tasks) {
   if (tasks.length === 0) {
     const empty = document.createElement("p");
     empty.className = "archive-list__empty";
-    empty.textContent = "Архив пока пуст.";
+    empty.textContent = t("archive.empty");
     archiveList.append(empty);
     return;
   }
@@ -204,12 +199,12 @@ export function renderArchive(tasks) {
     const title = document.createElement("h3");
     title.textContent = task.title;
     const meta = document.createElement("p");
-    meta.textContent = `${priorityLabels[task.priority] ?? "Без приоритета"} · ${task.tags?.map((tag) => `#${tag}`).join(" ") || "без тегов"}`;
+    meta.textContent = `${priorityLabel(task.priority) ?? t("priority.none")} · ${task.tags?.map((tag) => `#${tag}`).join(" ") || t("archive.noTags")}`;
     const restore = document.createElement("button");
     restore.className = "secondary-button";
     restore.type = "button";
     restore.dataset.action = "restore-task";
-    restore.textContent = "Восстановить";
+    restore.textContent = t("archive.restore");
     item.append(title, meta, restore);
     archiveList.append(item);
   });

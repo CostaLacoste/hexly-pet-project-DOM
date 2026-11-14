@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.clear());
   await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
 });
 
 test("полный сценарий: доска, задача, повторение, архив и undo", async ({ page }) => {
@@ -60,6 +61,30 @@ test("темы, сортировка и клавиатурные команды"
 
   await page.locator("#sort-select").selectOption("priority");
   await expect(page.locator("#sort-select")).toHaveValue("priority");
+});
+
+test("переключает все языки, сохраняет выбор и включает RTL", async ({ page }) => {
+  const languages = [
+    ["en", "Main board", "ltr"],
+    ["ig", "Bọdụ bụ isi", "ltr"],
+    ["uz", "Asosiy doska", "ltr"],
+    ["uk", "Основна дошка", "ltr"],
+    ["he", "לוח ראשי", "rtl"],
+    ["yi", "הויפּט־ברעט", "rtl"],
+  ];
+
+  for (const [language, boardName, direction] of languages) {
+    await page.locator("#language-select").selectOption(language);
+    await expect(page.locator("html")).toHaveAttribute("lang", language);
+    await expect(page.locator("html")).toHaveAttribute("dir", direction);
+    await expect(page.locator("#active-board-name")).toHaveText(boardName);
+    expect(await page.evaluate(() => localStorage.getItem("flowboard-language")))
+      .toBe(JSON.stringify(language));
+  }
+
+  await page.reload();
+  await expect(page.locator("#language-select")).toHaveValue("yi");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 });
 
 test("экспортирует и импортирует рабочее пространство", async ({ page }) => {

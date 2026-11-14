@@ -52,7 +52,8 @@
 }
 
 .header-action,
-.theme-field select {
+.theme-field select,
+.language-field select {
   height: 100%;
   padding: 0.6rem 0.85rem;
   color: var(--color-text);
@@ -71,9 +72,42 @@
   opacity: 0.55;
 }
 
-.theme-field {
+.theme-field,
+.language-field {
   display: block;
   align-self: stretch;
+}
+
+html[dir="rtl"] .brand {
+  padding-right: 0;
+  padding-left: 1.25rem;
+  border-right: 0;
+  border-left: 3px solid var(--color-border);
+}
+
+html[dir="rtl"] .brand__mark {
+  border-right: 0;
+  border-left: 3px solid var(--color-border);
+}
+
+html[dir="rtl"] .header-tools {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+html[dir="rtl"] .header-action,
+html[dir="rtl"] .theme-field select,
+html[dir="rtl"] .language-field select,
+html[dir="rtl"] .app-header > .primary-button,
+html[dir="rtl"] .workspace-bar__board select,
+html[dir="rtl"] .workspace-bar__actions button {
+  border-right: 3px solid var(--color-border);
+  border-left: 0;
+}
+
+html[dir="rtl"] .workspace-bar__board {
+  padding-right: 1rem;
+  padding-left: 0;
 }
 
 .app-header > .primary-button {
@@ -1002,11 +1036,14 @@ kbd {
   }
 
   .theme-field,
-  .theme-field select {
+  .theme-field select,
+  .language-field,
+  .language-field select {
     width: 100%;
   }
 
-  .theme-field select {
+  .theme-field select,
+  .language-field select {
     min-height: 42px;
     border-left: 0;
   }

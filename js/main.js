@@ -27,6 +27,7 @@ import {
   updateTask,
 } from "./tasks.js";
 import { renderArchive, renderBoard, showNotification } from "./ui.js";
+import { setLanguage, t, translateDocument } from "./i18n.js";
 
 const board = document.querySelector(".kanban-board");
 const form = document.querySelector("#task-form");
@@ -39,6 +40,7 @@ const prioritySelect = document.querySelector("#priority-filter");
 const tagSelect = document.querySelector("#tag-filter");
 const sortSelect = document.querySelector("#sort-select");
 const themeSelect = document.querySelector("#theme-select");
+const languageSelect = document.querySelector("#language-select");
 const boardSelect = document.querySelector("#board-select");
 const boardTitle = document.querySelector("#active-board-name");
 const importInput = document.querySelector("#workspace-import");
@@ -61,23 +63,31 @@ function getBoardTasks({ archived = false } = {}) {
 function syncBoardSelect() {
   const boards = getBoards();
   boardSelect.replaceChildren();
-  boards.forEach((item) => boardSelect.add(new Option(item.name, item.id)));
+  boards.forEach((item) => {
+    const name = item.id === "default" && item.name === "Основная доска"
+      ? t("board.default")
+      : item.name;
+    boardSelect.add(new Option(name, item.id));
+  });
 
   if (!getBoardById(activeBoardId)) {
     activeBoardId = boards[0].id;
   }
 
   boardSelect.value = activeBoardId;
-  boardTitle.textContent = getBoardById(activeBoardId)?.name ?? "Доска";
+  const activeBoard = getBoardById(activeBoardId);
+  boardTitle.textContent = activeBoard?.id === "default" && activeBoard.name === "Основная доска"
+    ? t("board.default")
+    : activeBoard?.name ?? t("workspace.board");
 }
 
 function syncTagFilter(tasks) {
   const selectedTag = tagSelect.value;
   const tags = [...new Set(tasks.flatMap((task) => task.tags ?? []))].sort(
-    (first, second) => first.localeCompare(second, "ru"),
+    (first, second) => first.localeCompare(second),
   );
 
-  tagSelect.replaceChildren(new Option("Все теги", "all"));
+  tagSelect.replaceChildren(new Option(t("filter.allTags"), "all"));
   tags.forEach((tag) => tagSelect.add(new Option(`#${tag}`, tag)));
   tagSelect.value = tags.includes(selectedTag) ? selectedTag : "all";
 }
@@ -114,8 +124,8 @@ function persistWorkspace() {
 function updateUndoButton() {
   undoButton.disabled = history.length === 0;
   undoButton.title = history.length > 0
-    ? `Отменить: ${history.at(-1).label}`
-    : "Нет действий для отмены";
+    ? `${t("app.undo")}: ${t(history.at(-1).label)}`
+    : t("app.undo");
 }
 
 function rememberState(label) {
@@ -138,7 +148,7 @@ function commitChanges(message) {
   const saved = persistWorkspace();
   refreshBoard();
   showNotification(
-    saved ? message : "Изменения внесены, но не удалось сохранить их в браузере",
+    saved ? message : t("notice.saveError"),
     saved ? "success" : "error",
   );
 }
@@ -154,7 +164,7 @@ function undoLastAction() {
   persistWorkspace();
   refreshBoard();
   updateUndoButton();
-  showNotification(`Отменено: ${snapshot.label}`);
+  showNotification(t("notice.undo", { action: t(snapshot.label) }));
 }
 
 function updateChecklistEditorEmptyState() {
@@ -223,7 +233,7 @@ function openCreateDialog() {
   form.reset();
   form.elements.taskId.value = "";
   renderChecklistEditor([]);
-  taskDialogTitle.textContent = "Новая задача";
+  taskDialogTitle.textContent = t("task.new");
   taskDialog.showModal();
   form.elements.title.focus();
 }
@@ -232,7 +242,7 @@ function openEditDialog(taskId) {
   const task = getTaskById(taskId);
 
   if (!task) {
-    showNotification("Задача не найдена", "error");
+    showNotification(t("notice.taskNotFound"), "error");
     return;
   }
 
@@ -245,14 +255,14 @@ function openEditDialog(taskId) {
   form.elements.recurrence.value = task.recurrence ?? "none";
   form.elements.tags.value = (task.tags ?? []).join(", ");
   renderChecklistEditor(task.checklist ?? []);
-  taskDialogTitle.textContent = "Редактирование задачи";
+  taskDialogTitle.textContent = t("task.edit");
   taskDialog.showModal();
   form.elements.title.focus();
 }
 
 function openDeleteDialog(taskId) {
   if (!getTaskById(taskId)) {
-    showNotification("Задача не найдена", "error");
+    showNotification(t("notice.taskNotFound"), "error");
     return;
   }
 
@@ -266,23 +276,23 @@ function closeDeleteDialog() {
 }
 
 function createNewBoard() {
-  const name = window.prompt("Название новой доски:", "Новый проект");
+  const name = window.prompt(t("prompt.newBoard"), t("prompt.newBoardDefault"));
   if (!name?.trim()) return;
 
-  rememberState("создание доски");
+  rememberState("action.createBoard");
   const newBoard = createBoard(name);
   activeBoardId = newBoard.id;
-  commitChanges("Доска создана");
+  commitChanges(t("notice.boardCreated"));
 }
 
 function renameActiveBoard() {
   const currentBoard = getBoardById(activeBoardId);
-  const name = window.prompt("Новое название доски:", currentBoard?.name ?? "");
+  const name = window.prompt(t("prompt.renameBoard"), currentBoard?.name ?? "");
   if (!name?.trim()) return;
 
-  rememberState("переименование доски");
+  rememberState("action.renameBoard");
   if (renameBoard(activeBoardId, name)) {
-    commitChanges("Доска переименована");
+    commitChanges(t("notice.boardRenamed"));
   } else {
     discardLastSnapshot();
   }
@@ -290,18 +300,18 @@ function renameActiveBoard() {
 
 function removeActiveBoard() {
   if (getBoards().length === 1) {
-    showNotification("Нельзя удалить единственную доску", "error");
+    showNotification(t("notice.onlyBoard"), "error");
     return;
   }
 
   const currentBoard = getBoardById(activeBoardId);
-  if (!window.confirm(`Удалить доску «${currentBoard?.name}» и все её задачи?`)) return;
+  if (!window.confirm(t("prompt.deleteBoard", { name: currentBoard?.name }))) return;
 
-  rememberState("удаление доски");
+  rememberState("action.deleteBoard");
   setTasks(getTasks().filter((task) => task.boardId !== activeBoardId));
   deleteBoard(activeBoardId);
   activeBoardId = getBoards()[0].id;
-  commitChanges("Доска удалена");
+  commitChanges(t("notice.boardDeleted"));
 }
 
 function exportWorkspace() {
@@ -319,25 +329,25 @@ function exportWorkspace() {
   link.download = `flowboard-${new Date().toISOString().slice(0, 10)}.json`;
   link.click();
   URL.revokeObjectURL(url);
-  showNotification("Резервная копия экспортирована");
+  showNotification(t("notice.exported"));
 }
 
 async function importWorkspace(file) {
   try {
     const payload = JSON.parse(await file.text());
     if (!Array.isArray(payload.boards) || !Array.isArray(payload.tasks)) {
-      throw new Error("Файл не содержит данные Flowboard");
+      throw new Error(t("notice.invalidFile"));
     }
 
-    rememberState("импорт данных");
+    rememberState("action.import");
     setBoards(payload.boards);
     setTasks(payload.tasks);
     activeBoardId = getBoardById(payload.activeBoardId)
       ? payload.activeBoardId
       : getBoards()[0].id;
-    commitChanges("Данные импортированы");
+    commitChanges(t("notice.imported"));
   } catch (error) {
-    showNotification(error.message || "Не удалось импортировать файл", "error");
+    showNotification(error.message || t("notice.importError"), "error");
   } finally {
     importInput.value = "";
   }
@@ -346,25 +356,25 @@ async function importWorkspace(file) {
 function archiveCompletedTasks() {
   const completed = getBoardTasks().filter((task) => task.status === "done");
   if (completed.length === 0) {
-    showNotification("Нет выполненных задач для архива", "error");
+    showNotification(t("notice.archiveEmpty"), "error");
     return;
   }
 
-  rememberState("архивация задач");
+  rememberState("action.archive");
   const completedIds = new Set(completed.map((task) => task.id));
   setTasks(getTasks().map((task) =>
     completedIds.has(task.id) ? { ...task, archived: true } : task,
   ));
-  commitChanges(`В архиве: ${completed.length}`);
+  commitChanges(t("notice.archived", { count: completed.length }));
 }
 
 function restoreArchivedTask(taskId) {
   const task = getTaskById(taskId);
   if (!task?.archived) return;
 
-  rememberState("восстановление задачи");
+  rememberState("action.restore");
   updateTask(taskId, { archived: false });
-  commitChanges("Задача восстановлена");
+  commitChanges(t("notice.restored"));
 }
 
 function moveCardWithKeyboard(card, key) {
@@ -378,13 +388,13 @@ function moveCardWithKeyboard(card, key) {
     const targetStatus = statuses[statusIndex + (key === "ArrowLeft" ? -1 : 1)];
     if (!targetStatus) return;
 
-    rememberState("перемещение задачи");
+    rememberState("action.move");
     const previousTask = getTaskById(task.id);
     const movedTask = moveTask(task.id, targetStatus);
     createRecurringCopyIfNeeded(previousTask, movedTask);
     sortMode = "manual";
     sortSelect.value = sortMode;
-    commitChanges("Задача перемещена");
+    commitChanges(t("notice.taskMoved"));
     document.querySelector(`[data-task-id="${task.id}"]`)?.focus();
     return;
   }
@@ -397,7 +407,7 @@ function moveCardWithKeyboard(card, key) {
   const swapTask = peers[currentIndex + (key === "ArrowUp" ? -1 : 1)];
   if (!swapTask) return;
 
-  rememberState("изменение порядка задач");
+  rememberState("action.order");
   const currentOrder = task.order;
   setTasks(getTasks().map((item) => {
     if (item.id === task.id) return { ...item, order: swapTask.order };
@@ -406,7 +416,7 @@ function moveCardWithKeyboard(card, key) {
   }));
   sortMode = "manual";
   sortSelect.value = sortMode;
-  commitChanges("Порядок задач изменён");
+  commitChanges(t("notice.orderChanged"));
   document.querySelector(`[data-task-id="${task.id}"]`)?.focus();
 }
 
@@ -418,7 +428,7 @@ form.addEventListener("submit", (event) => {
   const isEditing = Boolean(taskData.taskId);
 
   try {
-    rememberState(isEditing ? "редактирование задачи" : "создание задачи");
+    rememberState(isEditing ? "action.edit" : "action.create");
     if (isEditing) {
       updateTaskWithRecurrence(taskData.taskId, taskData);
     } else {
@@ -426,7 +436,7 @@ form.addEventListener("submit", (event) => {
       createTask(taskData);
     }
     taskDialog.close();
-    commitChanges(isEditing ? "Задача обновлена" : "Задача создана");
+    commitChanges(t(isEditing ? "notice.taskUpdated" : "notice.taskCreated"));
   } catch (error) {
     discardLastSnapshot();
     showNotification(error.message, "error");
@@ -448,7 +458,7 @@ document.addEventListener("click", (event) => {
       if (checklistEditor.querySelectorAll("[data-checklist-editor-item]").length < 8) {
         addChecklistEditorItem();
       } else {
-        showNotification("В чек-листе может быть не больше 8 пунктов", "error");
+        showNotification(t("notice.checklistLimit"), "error");
       }
       break;
     case "remove-checklist-item":
@@ -459,10 +469,10 @@ document.addEventListener("click", (event) => {
     case "confirm-delete": {
       const deletingTaskId = deleteDialog.dataset.taskId;
       if (deletingTaskId && getTaskById(deletingTaskId)) {
-        rememberState("удаление задачи");
+        rememberState("action.delete");
         deleteTask(deletingTaskId);
         closeDeleteDialog();
-        commitChanges("Задача удалена");
+        commitChanges(t("notice.taskDeleted"));
       }
       break;
     }
@@ -506,6 +516,14 @@ themeSelect.addEventListener("change", () => {
   saveSetting("theme", themeSelect.value);
 });
 
+languageSelect.addEventListener("change", () => {
+  setLanguage(languageSelect.value);
+  saveSetting("language", languageSelect.value);
+  translateDocument();
+  updateUndoButton();
+  refreshBoard();
+});
+
 importInput.addEventListener("change", () => {
   const [file] = importInput.files;
   if (file) importWorkspace(file);
@@ -518,14 +536,14 @@ board.addEventListener("change", (event) => {
   const task = getTaskById(checkbox.closest(".task-card")?.dataset.taskId);
   if (!task) return;
 
-  rememberState("изменение чек-листа");
+  rememberState("action.checklist");
   const checklist = (task.checklist ?? []).map((item) =>
     item.id === checkbox.dataset.checklistId
       ? { ...item, done: checkbox.checked }
       : item,
   );
   updateTask(task.id, { checklist });
-  commitChanges("Чек-лист обновлён");
+  commitChanges(t("notice.checklistUpdated"));
 });
 
 document.addEventListener("keydown", (event) => {
@@ -564,16 +582,20 @@ initDragAndDrop(board, (taskId, newStatus, beforeTaskId) => {
   const previousTask = getTaskById(taskId);
   if (!previousTask) return;
 
-  rememberState("перемещение задачи");
+  rememberState("action.move");
   const movedTask = moveTask(taskId, newStatus, beforeTaskId);
   createRecurringCopyIfNeeded(previousTask, movedTask);
   sortMode = "manual";
   sortSelect.value = sortMode;
-  commitChanges("Положение задачи изменено");
+  commitChanges(t("notice.positionChanged"));
 });
 
 setBoards(loadBoards());
 setTasks(loadTasks());
+const language = loadSetting("language", "ru");
+setLanguage(language);
+languageSelect.value = language;
+translateDocument();
 activeBoardId = loadSetting("activeBoard", getBoards()[0].id);
 sortMode = loadSetting("sort", "manual");
 sortSelect.value = sortMode;

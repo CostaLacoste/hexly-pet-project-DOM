@@ -77,8 +77,10 @@ describe("локальное хранилище", () => {
     const boards = [{ id: "default", name: "Основная" }];
     assert.equal(saveBoards(boards), true);
     assert.equal(saveSetting("theme", "dark"), true);
+    assert.equal(saveSetting("language", "yi"), true);
     assert.deepEqual(loadBoards(), boards);
     assert.equal(loadSetting("theme", "classic"), "dark");
+    assert.equal(loadSetting("language", "ru"), "yi");
     assert.equal(loadSetting("unknown", "fallback"), "fallback");
   });
 });
