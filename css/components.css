@@ -72,6 +72,279 @@
   opacity: 0.55;
 }
 
+.view-switcher,
+.inline-field,
+.hub-actions {
+  display: flex;
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.view-switcher .is-active {
+  color: #fff;
+  background: var(--color-purple);
+}
+
+.inline-field > :first-child {
+  flex: 1;
+}
+
+.calendar-view {
+  margin-top: 1.5rem;
+  background: var(--color-surface);
+  border: 3px solid var(--color-border);
+  box-shadow: 7px 7px 0 var(--color-border);
+}
+
+.calendar-view__header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem;
+  border-bottom: 3px solid var(--color-border);
+}
+
+.calendar-view__header h2,
+.hub-card h3 {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.calendar-day {
+  min-height: 130px;
+  padding: 0.6rem;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.calendar-day:nth-child(7n) {
+  border-right: 0;
+}
+
+.calendar-day--outside {
+  opacity: 0.38;
+}
+
+.calendar-day--today {
+  background: color-mix(in srgb, var(--color-lime) 34%, var(--color-surface));
+}
+
+.calendar-day__number {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-weight: 950;
+}
+
+.calendar-task {
+  display: block;
+  width: 100%;
+  padding: 0.35rem;
+  margin-top: 0.3rem;
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 0.66rem;
+  font-weight: 900;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--color-pink);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+}
+
+.task-card[data-color="pink"] { background: color-mix(in srgb, var(--color-pink) 24%, var(--color-surface)); }
+.task-card[data-color="lime"] { background: color-mix(in srgb, var(--color-lime) 28%, var(--color-surface)); }
+.task-card[data-color="purple"] { background: color-mix(in srgb, var(--color-purple) 18%, var(--color-surface)); }
+.task-card[data-color="yellow"] { background: color-mix(in srgb, var(--color-yellow) 24%, var(--color-surface)); }
+.task-card[data-color="blue"] { background: color-mix(in srgb, #65c9ff 24%, var(--color-surface)); }
+
+.task-card__cover {
+  display: grid;
+  min-height: 70px;
+  margin: -1rem -1rem 0.8rem;
+  font-size: 2.6rem;
+  background: var(--color-yellow);
+  border-bottom: 3px solid var(--color-border);
+  place-items: center;
+}
+
+.task-card__meta {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0;
+  font-size: 0.66rem;
+  font-weight: 900;
+}
+
+.task-card__meta span {
+  padding: 0.22rem 0.4rem;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+}
+
+.dialog--wide {
+  width: min(1080px, calc(100% - 2rem));
+}
+
+.productivity-hub {
+  width: 100%;
+  max-width: none;
+}
+
+.productivity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.hub-card {
+  padding: 1rem;
+  background: var(--color-surface-muted);
+  border: 3px solid var(--color-border);
+  box-shadow: 4px 4px 0 var(--color-border);
+}
+
+.hub-card--wide {
+  grid-column: 1 / -1;
+}
+
+.hub-card--focus {
+  background: var(--color-purple);
+  color: #fff;
+}
+
+.hub-card--focus .secondary-button,
+.hub-card--focus select {
+  color: var(--color-text);
+}
+
+.hub-card p {
+  font-size: 0.76rem;
+}
+
+.focus-clock {
+  display: block;
+  margin: 0.6rem 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  line-height: 0.9;
+}
+
+.hub-card select,
+.hub-card textarea,
+.hub-card input[type="range"] {
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.workflow-editor,
+.member-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.7rem 0;
+}
+
+.workflow-row,
+.member-row,
+.toggle-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+}
+
+.workflow-row__color {
+  width: 0.8rem;
+  height: 0.8rem;
+  background: var(--column-color, var(--color-yellow));
+  border: 1px solid var(--color-border);
+}
+
+.insight-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0.8rem 0;
+}
+
+.insight-strip div {
+  padding: 0.75rem;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+}
+
+.insight-strip span,
+.insight-strip strong {
+  display: block;
+}
+
+.insight-strip span {
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.insight-strip strong {
+  margin-top: 0.35rem;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2rem;
+}
+
+.flow-bars {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.flow-bar {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.7fr) 2fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.flow-bar i {
+  display: block;
+  min-height: 14px;
+  width: var(--flow-width);
+  background: var(--color-pink);
+  border: 2px solid var(--color-border);
+}
+
+.activity-list {
+  max-height: 190px;
+  padding-left: 1.4rem;
+  overflow: auto;
+  font-size: 0.72rem;
+}
+
+html[data-high-contrast="true"] {
+  filter: contrast(1.25);
+}
+
+html[data-reduce-motion="true"] *,
+html[data-reduce-motion="true"] *::before,
+html[data-reduce-motion="true"] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+
 .theme-field,
 .language-field {
   display: block;
@@ -612,6 +885,12 @@ body[data-theme="candy"] .board-heading__intro {
   background: var(--color-primary);
 }
 
+.column-header--pink { background: var(--color-pink); }
+.column-header--lime { background: var(--color-lime); }
+.column-header--purple { color: #fff; background: var(--color-purple); }
+.column-header--yellow { background: var(--color-yellow); }
+.column-header--blue { background: var(--color-blue); }
+
 .column-title {
   gap: 0.55rem;
 }
@@ -950,7 +1229,7 @@ kbd {
     margin-left: 0;
   }
 
-  .header-action {
+  .header-action[data-action="undo"] {
     display: none;
   }
 
@@ -1008,6 +1287,23 @@ kbd {
   .search-field {
     flex-basis: 100%;
     max-width: none;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calendar-day:nth-child(7n) {
+    border-right: 1px solid var(--color-border);
+  }
+
+  .productivity-grid,
+  .insight-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .hub-card--wide {
+    grid-column: auto;
   }
 }
 

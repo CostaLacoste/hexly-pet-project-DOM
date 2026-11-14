@@ -4,6 +4,7 @@ import { beforeEach, describe, test } from "node:test";
 import { getTasks, setTasks } from "../js/state.js";
 import {
   createTask,
+  areDependenciesComplete,
   deleteTask,
   getRecurringTaskData,
   getTaskById,
@@ -43,15 +44,26 @@ describe("задачи", () => {
     assert.equal(getTasks().length, 1);
   });
 
-  test("подставляет безопасные значения для неизвестного статуса и приоритета", () => {
+  test("поддерживает пользовательский статус и нормализует приоритет", () => {
     const task = createTask({
       title: "Задача",
       status: "unknown",
       priority: "urgent",
     });
 
-    assert.equal(task.status, "todo");
+    assert.equal(task.status, "unknown");
     assert.equal(task.priority, "low");
+  });
+
+  test("проверяет завершение зависимостей", () => {
+    setTasks([
+      { id: "a", title: "A", status: "done", priority: "low" },
+      { id: "b", title: "B", status: "todo", priority: "low", dependsOn: ["a"] },
+      { id: "c", title: "C", status: "todo", priority: "low", dependsOn: ["missing"] },
+    ]);
+
+    assert.equal(areDependenciesComplete(getTasks()[1]), true);
+    assert.equal(areDependenciesComplete(getTasks()[2]), false);
   });
 
   test("не создаёт задачу без названия", () => {

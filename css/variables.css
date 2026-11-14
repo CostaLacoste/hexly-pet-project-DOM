@@ -5,6 +5,7 @@
   --color-text: #111111;
   --color-text-muted: #484848;
   --color-primary: #7651f4;
+  --color-purple: var(--color-primary);
   --color-primary-dark: #5d38dc;
   --color-primary-soft: #e9e0ff;
   --color-border: #111111;

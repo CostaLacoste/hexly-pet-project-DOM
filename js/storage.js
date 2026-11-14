@@ -4,6 +4,12 @@ const ACTIVE_BOARD_KEY = "flowboard-active-board";
 const THEME_KEY = "flowboard-theme";
 const SORT_KEY = "flowboard-sort";
 const LANGUAGE_KEY = "flowboard-language";
+const COLUMNS_KEY = "flowboard-columns";
+const TEMPLATES_KEY = "flowboard-templates";
+const MEMBERS_KEY = "flowboard-members";
+const ACTIVITY_KEY = "flowboard-activity";
+const ACCESSIBILITY_KEY = "flowboard-accessibility";
+const PROFILE_KEY = "flowboard-profile";
 
 function saveValue(key, value) {
   try {
@@ -54,6 +60,12 @@ export function saveSetting(key, value) {
     theme: THEME_KEY,
     sort: SORT_KEY,
     language: LANGUAGE_KEY,
+    columns: COLUMNS_KEY,
+    templates: TEMPLATES_KEY,
+    members: MEMBERS_KEY,
+    activity: ACTIVITY_KEY,
+    accessibility: ACCESSIBILITY_KEY,
+    profile: PROFILE_KEY,
   }[key];
   return storageKey ? saveValue(storageKey, value) : false;
 }
@@ -64,6 +76,12 @@ export function loadSetting(key, fallback) {
     theme: THEME_KEY,
     sort: SORT_KEY,
     language: LANGUAGE_KEY,
+    columns: COLUMNS_KEY,
+    templates: TEMPLATES_KEY,
+    members: MEMBERS_KEY,
+    activity: ACTIVITY_KEY,
+    accessibility: ACCESSIBILITY_KEY,
+    profile: PROFILE_KEY,
   }[key];
   return storageKey ? loadValue(storageKey, fallback) : fallback;
 }

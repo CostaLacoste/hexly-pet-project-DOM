@@ -13,6 +13,10 @@ function cloneTask(task) {
     checklist: Array.isArray(task.checklist)
       ? task.checklist.map((item) => ({ ...item }))
       : [],
+    dependsOn: Array.isArray(task.dependsOn) ? [...task.dependsOn] : [],
+    comments: Array.isArray(task.comments)
+      ? task.comments.map((comment) => ({ ...comment }))
+      : [],
   };
 }
 

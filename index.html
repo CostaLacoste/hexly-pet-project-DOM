@@ -3,12 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#7c4dff" />
     <meta
       name="description"
       content="Flowboard — учебная канбан-доска для управления задачами."
     />
     <title>Flowboard — канбан-доска</title>
-    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/style.css?v=5" />
+    <link rel="manifest" href="./manifest.webmanifest" />
     <script type="module" src="./js/main.js"></script>
   </head>
 
@@ -20,6 +22,9 @@
       </a>
 
       <div class="header-tools">
+        <button class="header-action" type="button" data-action="open-productivity-hub" data-i18n="app.hub">
+          ◫ Центр
+        </button>
         <button class="header-action" type="button" data-action="undo" data-i18n="app.undo" disabled>
           ↶ Отменить
         </button>
@@ -132,6 +137,10 @@
       </section>
 
       <section class="toolbar" aria-label="Фильтры задач">
+        <div class="view-switcher" role="group" aria-label="Режим просмотра">
+          <button class="mini-button is-active" type="button" data-action="show-board" data-i18n="view.board">Доска</button>
+          <button class="mini-button" type="button" data-action="show-calendar" data-i18n="view.calendar">Календарь</button>
+        </div>
         <label class="search-field">
           <span class="visually-hidden">Поиск задач</span>
           <span aria-hidden="true">⌕</span>
@@ -252,6 +261,17 @@
           </div>
         </article>
       </section>
+
+      <section class="calendar-view" data-calendar-view hidden aria-label="Календарь задач">
+        <header class="calendar-view__header">
+          <div>
+            <p class="eyebrow">Сроки / Таймлайн</p>
+            <h2 data-i18n="calendar.title">Календарь задач</h2>
+          </div>
+          <input id="calendar-month" type="month" aria-label="Месяц календаря" />
+        </header>
+        <div class="calendar-grid" data-calendar-grid></div>
+      </section>
     </main>
 
     <dialog id="task-dialog" class="dialog" aria-labelledby="task-dialog-title">
@@ -317,6 +337,52 @@
             </select>
           </label>
         </div>
+
+        <div class="form-row">
+          <label class="form-field">
+            <span data-i18n="extra.assignee">Исполнитель</span>
+            <select id="task-assignee" name="assignee">
+              <option value="" data-i18n="extra.unassigned">Не назначен</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span data-i18n="extra.dependency">Зависит от</span>
+            <select id="task-dependencies" name="dependsOn" multiple size="3"></select>
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label class="form-field">
+            <span data-i18n="extra.color">Цвет карточки</span>
+            <select id="task-color" name="color">
+              <option value="default">По умолчанию</option>
+              <option value="pink">Розовый</option>
+              <option value="lime">Лайм</option>
+              <option value="purple">Фиолетовый</option>
+              <option value="yellow">Жёлтый</option>
+              <option value="blue">Синий</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span data-i18n="extra.cover">Обложка</span>
+            <input id="task-cover" name="cover" type="text" maxlength="4" placeholder="🚀" />
+          </label>
+        </div>
+
+        <label class="form-field">
+          <span data-i18n="extra.template">Шаблон</span>
+          <div class="inline-field">
+            <select id="task-template"><option value="" data-i18n="extra.noTemplate">Без шаблона</option></select>
+            <button class="mini-button" type="button" data-action="save-template" data-i18n="extra.saveTemplate">Сохранить текущий</button>
+          </div>
+        </label>
+
+        <label class="form-field" data-comment-field hidden>
+          <span data-i18n="extra.comment">Новый комментарий</span>
+          <textarea id="task-comment" name="comment" rows="2" maxlength="500" placeholder="Добавить комментарий..."></textarea>
+        </label>
 
         <div class="form-row">
           <label class="form-field">
@@ -401,6 +467,90 @@
           <button class="danger-button" type="button" data-action="confirm-delete" data-i18n="task.deleteButton">
             Удалить
           </button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="productivity-dialog" class="dialog dialog--wide" aria-labelledby="productivity-title">
+      <div class="dialog__content productivity-hub">
+        <div class="dialog__header">
+          <div>
+            <p class="eyebrow">FLOWBOARD / LAB</p>
+            <h2 id="productivity-title" data-i18n="hub.title">Центр продуктивности</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Закрыть" data-action="close-productivity-hub">×</button>
+        </div>
+
+        <div class="productivity-grid">
+          <section class="hub-card hub-card--focus">
+            <p class="eyebrow" data-i18n="hub.focus">Фокус</p>
+            <h3>Pomodoro</h3>
+            <strong class="focus-clock" data-focus-clock>25:00</strong>
+            <select id="focus-task" aria-label="Задача для фокуса"></select>
+            <div class="hub-actions">
+              <button class="primary-button" type="button" data-action="toggle-focus" data-i18n="hub.start">Старт</button>
+              <button class="secondary-button" type="button" data-action="reset-focus" data-i18n="hub.reset">Сброс</button>
+            </div>
+          </section>
+
+          <section class="hub-card">
+            <p class="eyebrow">Процесс</p>
+            <h3 data-i18n="hub.workflow">Колонки доски</h3>
+            <div class="workflow-editor" data-workflow-editor></div>
+            <button class="secondary-button" type="button" data-action="add-column" data-i18n="hub.addColumn">+ Колонка</button>
+          </section>
+
+          <section class="hub-card">
+            <p class="eyebrow">Команда</p>
+            <h3 data-i18n="hub.team">Участники</h3>
+            <div class="member-list" data-member-list></div>
+            <button class="secondary-button" type="button" data-action="add-member" data-i18n="hub.addMember">+ Участник</button>
+          </section>
+
+          <section class="hub-card">
+            <p class="eyebrow">Напоминания</p>
+            <h3 data-i18n="hub.reminders">Напоминания</h3>
+            <p>Уведомлять о задачах, срок которых наступает сегодня.</p>
+            <button class="secondary-button" type="button" data-action="enable-reminders">Включить уведомления</button>
+            <button class="secondary-button" type="button" data-action="install-app" hidden>Установить приложение</button>
+          </section>
+
+          <section class="hub-card hub-card--wide">
+            <p class="eyebrow">Отчёты</p>
+            <h3 data-i18n="hub.reports">Поток работы</h3>
+            <div class="insight-strip">
+              <div><span data-i18n="hub.average">Среднее выполнение</span><strong data-insight="average">—</strong></div>
+              <div><span data-i18n="hub.velocity">Скорость за 7 дней</span><strong data-insight="velocity">0</strong></div>
+              <div><span data-i18n="hub.blocked">Заблокировано</span><strong data-insight="blocked">0</strong></div>
+              <div><span data-i18n="hub.activity">Активность</span><strong data-insight="activity">0</strong></div>
+            </div>
+            <div class="flow-bars" data-flow-bars></div>
+          </section>
+
+          <section class="hub-card">
+            <p class="eyebrow">Доступность</p>
+            <h3 data-i18n="hub.accessibility">Отображение</h3>
+            <label class="toggle-row"><input type="checkbox" data-setting="highContrast" /> Высокий контраст</label>
+            <label class="toggle-row"><input type="checkbox" data-setting="reduceMotion" /> Меньше анимаций</label>
+            <label class="form-field"><span>Размер текста</span><input type="range" min="90" max="120" step="5" value="100" data-setting="fontScale" /></label>
+          </section>
+
+          <section class="hub-card">
+            <p class="eyebrow">Синхронизация</p>
+            <h3 data-i18n="hub.sync">Пакет рабочего пространства</h3>
+            <p>Перенесите данные на другое устройство безопасным кодом.</p>
+            <textarea id="sync-package" rows="4" placeholder="Код синхронизации"></textarea>
+            <div class="hub-actions">
+              <button class="secondary-button" type="button" data-action="create-sync-package">Создать</button>
+              <button class="primary-button" type="button" data-action="apply-sync-package">Применить</button>
+            </div>
+          </section>
+
+          <section class="hub-card hub-card--wide">
+            <p class="eyebrow">История</p>
+            <h3 data-i18n="hub.history">Журнал изменений</h3>
+            <ol class="activity-list" data-activity-list></ol>
+          </section>
         </div>
       </div>
     </dialog>

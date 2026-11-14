@@ -13,12 +13,8 @@ const weeklyChart = document.querySelector("[data-weekly-chart]");
 const weekTotal = document.querySelector("[data-week-total]");
 const archiveCount = document.querySelector("#archive-count");
 const archiveList = document.querySelector("#archive-list");
-
-const lists = {
-  todo: document.querySelector('[data-task-list="todo"]'),
-  progress: document.querySelector('[data-task-list="progress"]'),
-  done: document.querySelector('[data-task-list="done"]'),
-};
+const board = document.querySelector(".kanban-board");
+const calendarGrid = document.querySelector("[data-calendar-grid]");
 
 const priorityLabel = (priority) => t(`priority.${priority}`);
 const recurrenceLabel = (recurrence) => t(`task.${recurrence}`);
@@ -119,6 +115,7 @@ export function createTaskCard(task) {
   const deadline = card.querySelector(".task-card__deadline");
 
   card.dataset.taskId = task.id;
+  card.dataset.color = task.color || "default";
   card.tabIndex = 0;
   card.setAttribute(
     "aria-label",
@@ -130,6 +127,34 @@ export function createTaskCard(task) {
   card.querySelector("[data-i18n=\"task.checklist\"]").textContent = t("task.checklist");
   renderTags(card, task);
   renderChecklist(card, task);
+
+  if (task.cover) {
+    const cover = document.createElement("div");
+    cover.className = "task-card__cover";
+    cover.textContent = task.cover;
+    card.prepend(cover);
+  }
+
+  if (task.assignee || task.dependsOn?.length || task.comments?.length) {
+    const meta = document.createElement("div");
+    meta.className = "task-card__meta";
+    if (task.assignee) {
+      const assignee = document.createElement("span");
+      assignee.textContent = `@ ${task.assignee}`;
+      meta.append(assignee);
+    }
+    if (task.dependsOn?.length) {
+      const dependencies = document.createElement("span");
+      dependencies.textContent = `⇢ ${task.dependsOn.length}`;
+      meta.append(dependencies);
+    }
+    if (task.comments?.length) {
+      const comments = document.createElement("span");
+      comments.textContent = `◌ ${task.comments.length}`;
+      meta.append(comments);
+    }
+    card.querySelector(".task-card__title").after(meta);
+  }
 
   if (task.description) {
     description.textContent = task.description;
@@ -162,21 +187,92 @@ export function createTaskCard(task) {
   return card;
 }
 
-export function renderBoard(visibleTasks, allTasks = visibleTasks) {
-  Object.entries(lists).forEach(([status, list]) => {
-    list.querySelectorAll(".task-card").forEach((card) => card.remove());
-
-    const columnTasks = visibleTasks.filter((task) => task.status === status);
-    const emptyState = list.querySelector("[data-empty-state]");
-    const counter = document.querySelector(`[data-count-for="${status}"]`);
-
+export function renderBoard(visibleTasks, allTasks = visibleTasks, columns = []) {
+  board.replaceChildren();
+  board.style.gridTemplateColumns = `repeat(${Math.max(1, columns.length)}, minmax(270px, 1fr))`;
+  columns.forEach((column, index) => {
+    const article = document.createElement("article");
+    article.className = "kanban-column";
+    article.dataset.status = column.id;
+    article.innerHTML = `
+      <header class="column-header column-header--${column.color}">
+        <div class="column-title">
+          <span class="status-dot status-dot--${column.id}" aria-hidden="true"></span>
+          <h2></h2>
+        </div>
+        <span class="task-counter">0</span>
+      </header>
+      <div class="task-list" data-task-list="${column.id}">
+        <div class="empty-state"><span aria-hidden="true">${String(index + 1).padStart(2, "0")}</span><p>Пока пусто</p></div>
+      </div>
+    `;
+    const defaultNames = { todo: "Нужно сделать", progress: "В работе", done: "Готово" };
+    article.querySelector("h2").textContent = defaultNames[column.id] === column.name
+      ? t(`column.${column.id}`)
+      : column.name;
+    const header = article.querySelector(".column-header");
+    if (column.id === "done") {
+      const archive = document.createElement("button");
+      archive.className = "column-action";
+      archive.type = "button";
+      archive.dataset.action = "archive-done";
+      archive.textContent = t("column.archive");
+      header.append(archive);
+    }
+    const list = article.querySelector("[data-task-list]");
+    const columnTasks = visibleTasks.filter((task) => task.status === column.id);
     columnTasks.forEach((task) => list.append(createTaskCard(task)));
-    emptyState.hidden = columnTasks.length > 0;
-    counter.textContent = String(columnTasks.length);
+    const empty = list.querySelector(".empty-state");
+    const emptyKeys = { todo: "column.emptyTodo", progress: "column.emptyProgress", done: "column.emptyDone" };
+    empty.querySelector("p").textContent = emptyKeys[column.id] ? t(emptyKeys[column.id]) : "—";
+    empty.hidden = columnTasks.length > 0;
+    article.querySelector(".task-counter").textContent = String(columnTasks.length);
+    board.append(article);
   });
 
   totalTaskCount.textContent = String(allTasks.length);
   renderStats(allTasks);
+}
+
+function localDateKey(date) {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+}
+
+export function renderCalendar(tasks, monthValue, onOpenTask) {
+  if (!calendarGrid) return;
+  const [year, month] = String(monthValue).split("-").map(Number);
+  const current = Number.isFinite(year) && Number.isFinite(month)
+    ? new Date(year, month - 1, 1)
+    : new Date();
+  const first = new Date(current.getFullYear(), current.getMonth(), 1);
+  const start = new Date(first);
+  const weekday = (first.getDay() + 6) % 7;
+  start.setDate(first.getDate() - weekday);
+  const today = localDateKey(new Date());
+  calendarGrid.replaceChildren();
+
+  for (let offset = 0; offset < 42; offset += 1) {
+    const date = new Date(start);
+    date.setDate(start.getDate() + offset);
+    const key = localDateKey(date);
+    const day = document.createElement("div");
+    day.className = "calendar-day";
+    day.classList.toggle("calendar-day--outside", date.getMonth() !== current.getMonth());
+    day.classList.toggle("calendar-day--today", key === today);
+    const number = document.createElement("span");
+    number.className = "calendar-day__number";
+    number.textContent = String(date.getDate());
+    day.append(number);
+    tasks.filter((task) => task.deadline === key).forEach((task) => {
+      const button = document.createElement("button");
+      button.className = "calendar-task";
+      button.type = "button";
+      button.textContent = `${task.cover || "•"} ${task.title}`;
+      button.addEventListener("click", () => onOpenTask(task.id));
+      day.append(button);
+    });
+    calendarGrid.append(day);
+  }
 }
 
 export function renderArchive(tasks) {

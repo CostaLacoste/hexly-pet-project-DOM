@@ -1,0 +1,10 @@
+{
+  "name": "Flowboard",
+  "short_name": "Flowboard",
+  "description": "Необруталистская канбан-доска для задач и продуктивности",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f3ea",
+  "theme_color": "#7c4dff",
+  "icons": []
+}

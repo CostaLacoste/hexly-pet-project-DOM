@@ -1,6 +1,5 @@
 import { getTasks, setTasks } from "./state.js";
 
-const VALID_STATUSES = new Set(["todo", "progress", "done"]);
 const VALID_PRIORITIES = new Set(["low", "medium", "high"]);
 const VALID_RECURRENCES = new Set(["none", "daily", "weekly", "monthly"]);
 
@@ -45,7 +44,7 @@ function normalizeTaskData(taskData) {
   return {
     title,
     description: String(taskData.description ?? "").trim(),
-    status: VALID_STATUSES.has(taskData.status) ? taskData.status : "todo",
+    status: String(taskData.status || "todo").trim().slice(0, 30) || "todo",
     priority: VALID_PRIORITIES.has(taskData.priority)
       ? taskData.priority
       : "low",
@@ -58,6 +57,24 @@ function normalizeTaskData(taskData) {
       : "none",
     tags: normalizeTags(taskData.tags),
     checklist: normalizeChecklist(taskData.checklist),
+    dependsOn: [...new Set(
+      (Array.isArray(taskData.dependsOn) ? taskData.dependsOn : [taskData.dependsOn])
+        .map((id) => String(id ?? "").trim())
+        .filter(Boolean),
+    )].slice(0, 12),
+    assignee: String(taskData.assignee ?? "").trim().slice(0, 50),
+    color: ["default", "pink", "lime", "purple", "yellow", "blue"].includes(taskData.color)
+      ? taskData.color
+      : "default",
+    cover: String(taskData.cover ?? "").trim().slice(0, 4),
+    comments: Array.isArray(taskData.comments)
+      ? taskData.comments.map((comment) => ({
+          id: String(comment?.id || createId()),
+          author: String(comment?.author || "User").trim().slice(0, 50),
+          text: String(comment?.text || "").trim().slice(0, 500),
+          createdAt: String(comment?.createdAt || new Date().toISOString()),
+        })).filter((comment) => comment.text).slice(-30)
+      : [],
   };
 }
 
@@ -191,4 +208,9 @@ export function moveTask(taskId, newStatus, beforeTaskId = null) {
   );
   setTasks(updatedTasks);
   return getTaskById(taskId);
+}
+
+export function areDependenciesComplete(task, tasks = getTasks()) {
+  const dependencyIds = Array.isArray(task?.dependsOn) ? task.dependsOn : [];
+  return dependencyIds.every((id) => tasks.find((candidate) => candidate.id === id)?.status === "done");
 }
