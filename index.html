@@ -15,28 +15,31 @@
   <body>
     <header class="app-header">
       <a class="brand" href="#" aria-label="Flowboard — на главную">
-        <span class="brand__mark" aria-hidden="true">F</span>
-        <span>Flowboard</span>
+        <span class="brand__mark" aria-hidden="true">F//</span>
+        <span>FLOWBOARD</span>
       </a>
+
+      <p class="header-note" aria-hidden="true">TASK SYSTEM / 01</p>
 
       <button class="primary-button" type="button" data-action="open-task-dialog">
         <span aria-hidden="true">＋</span>
         Новая задача
+        <span aria-hidden="true">→</span>
       </button>
     </header>
 
     <main class="app-shell">
       <section class="board-heading" aria-labelledby="board-title">
-        <div>
-          <p class="eyebrow">Мой проект</p>
+        <div class="board-heading__intro">
+          <p class="eyebrow">Мой проект / Канбан</p>
           <h1 id="board-title">Рабочая доска</h1>
           <p class="board-heading__description">
-            Планируйте задачи и следите за их выполнением.
+            Планируйте задачи, двигайте карточки и доводите идеи до результата.
           </p>
         </div>
 
         <div class="board-summary" aria-label="Статистика доски">
-          <span>Всего задач</span>
+          <span>Всего<br />задач</span>
           <strong id="total-task-count">0</strong>
         </div>
       </section>
@@ -64,7 +67,7 @@
         </label>
 
         <button class="secondary-button" type="button" data-action="reset-filters">
-          Сбросить
+          Сбросить ×
         </button>
       </section>
 
@@ -85,7 +88,7 @@
             aria-label="Задачи, которые нужно сделать"
           >
             <div class="empty-state" data-empty-state="todo">
-              <span aria-hidden="true">📝</span>
+              <span aria-hidden="true">01</span>
               <p>Здесь появятся новые задачи</p>
             </div>
           </div>
@@ -107,7 +110,7 @@
             aria-label="Задачи в работе"
           >
             <div class="empty-state" data-empty-state="progress">
-              <span aria-hidden="true">⚙️</span>
+              <span aria-hidden="true">02</span>
               <p>Переместите сюда начатые задачи</p>
             </div>
           </div>
@@ -129,7 +132,7 @@
             aria-label="Выполненные задачи"
           >
             <div class="empty-state" data-empty-state="done">
-              <span aria-hidden="true">✅</span>
+              <span aria-hidden="true">03</span>
               <p>Выполненные задачи появятся здесь</p>
             </div>
           </div>
