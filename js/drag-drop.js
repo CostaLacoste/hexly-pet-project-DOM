@@ -8,7 +8,12 @@ export function initDragAndDrop(board, onMove) {
   board.addEventListener("dragstart", (event) => {
     const card = event.target.closest(".task-card");
 
-    if (!card || !event.dataTransfer) {
+    if (
+      !card ||
+      !event.dataTransfer ||
+      event.target.closest("button, input, select, textarea, label")
+    ) {
+      event.preventDefault();
       return;
     }
 

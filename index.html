@@ -44,6 +44,32 @@
         </div>
       </section>
 
+      <section class="stats-panel" aria-label="Статистика проекта">
+        <article class="stat-card stat-card--done">
+          <span class="stat-card__index" aria-hidden="true">01</span>
+          <span class="stat-card__label">Выполнено</span>
+          <strong class="stat-card__value" data-stat="done">0</strong>
+        </article>
+        <article class="stat-card stat-card--progress">
+          <span class="stat-card__index" aria-hidden="true">02</span>
+          <span class="stat-card__label">Прогресс</span>
+          <strong class="stat-card__value" data-stat="progress">0%</strong>
+          <div class="stat-card__bar" aria-hidden="true">
+            <span data-stat-progress-bar></span>
+          </div>
+        </article>
+        <article class="stat-card stat-card--overdue">
+          <span class="stat-card__index" aria-hidden="true">03</span>
+          <span class="stat-card__label">Просрочено</span>
+          <strong class="stat-card__value" data-stat="overdue">0</strong>
+        </article>
+        <article class="stat-card stat-card--checklist">
+          <span class="stat-card__index" aria-hidden="true">04</span>
+          <span class="stat-card__label">Пункты чек-листов</span>
+          <strong class="stat-card__value stat-card__value--small" data-stat="checklist">0/0</strong>
+        </article>
+      </section>
+
       <section class="toolbar" aria-label="Фильтры задач">
         <label class="search-field">
           <span class="visually-hidden">Поиск задач</span>
@@ -63,6 +89,13 @@
             <option value="low">Низкий</option>
             <option value="medium">Средний</option>
             <option value="high">Высокий</option>
+          </select>
+        </label>
+
+        <label class="select-field select-field--tag">
+          <span class="visually-hidden">Фильтр по тегу</span>
+          <select id="tag-filter">
+            <option value="all">Все теги</option>
           </select>
         </label>
 
@@ -207,6 +240,32 @@
           <input id="task-deadline" name="deadline" type="date" />
         </label>
 
+        <label class="form-field">
+          <span>Теги</span>
+          <input
+            id="task-tags"
+            name="tags"
+            type="text"
+            maxlength="120"
+            placeholder="дизайн, срочно, учёба"
+          />
+          <small>До 5 тегов, разделённых запятыми</small>
+        </label>
+
+        <fieldset class="checklist-editor">
+          <div class="checklist-editor__header">
+            <legend>Чек-лист</legend>
+            <button class="mini-button" type="button" data-action="add-checklist-item">
+              + Добавить пункт
+            </button>
+          </div>
+          <div id="checklist-editor-items" class="checklist-editor__items">
+            <p class="checklist-editor__empty" data-checklist-editor-empty>
+              Разбейте задачу на небольшие шаги.
+            </p>
+          </div>
+        </fieldset>
+
         <div class="dialog__actions">
           <button class="secondary-button" type="button" data-action="close-task-dialog">
             Отмена
@@ -240,8 +299,17 @@
         <div class="task-card__header">
           <span class="priority-badge"></span>
         </div>
+        <div class="task-card__tags" aria-label="Теги задачи"></div>
         <h3 class="task-card__title"></h3>
         <p class="task-card__description"></p>
+        <div class="task-checklist" hidden>
+          <div class="task-checklist__summary">
+            <span>Чек-лист</span>
+            <strong class="task-checklist__count"></strong>
+          </div>
+          <div class="task-checklist__bar" aria-hidden="true"><span></span></div>
+          <div class="task-checklist__items"></div>
+        </div>
         <footer class="task-card__footer">
           <time class="task-card__deadline"></time>
           <div class="task-card__actions">
@@ -252,6 +320,31 @@
           </div>
         </footer>
       </article>
+    </template>
+
+    <template id="checklist-editor-item-template">
+      <div class="checklist-editor__item" data-checklist-editor-item>
+        <input
+          class="checklist-editor__checkbox"
+          type="checkbox"
+          aria-label="Пункт выполнен"
+        />
+        <input
+          class="checklist-editor__text"
+          type="text"
+          maxlength="100"
+          placeholder="Название шага"
+          aria-label="Название пункта чек-листа"
+        />
+        <button
+          class="checklist-editor__remove"
+          type="button"
+          data-action="remove-checklist-item"
+          aria-label="Удалить пункт чек-листа"
+        >
+          ×
+        </button>
+      </div>
     </template>
 
     <div id="notification-region" class="notifications" aria-live="polite"></div>

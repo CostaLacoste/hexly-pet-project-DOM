@@ -1,5 +1,5 @@
 .dialog {
-  width: min(calc(100% - 2rem), 540px);
+  width: min(calc(100% - 2rem), 680px);
   padding: 0;
   color: var(--color-text);
   background: var(--color-surface);
@@ -75,6 +75,91 @@
   background: #ffffff;
 }
 
+.form-field small {
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.checklist-editor {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.checklist-editor__header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+}
+
+.checklist-editor legend {
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.mini-button {
+  padding: 0.4rem 0.55rem;
+  color: var(--color-text);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  background: var(--color-lime);
+  border: 2px solid var(--color-border);
+  box-shadow: 3px 3px 0 var(--color-border);
+  cursor: pointer;
+}
+
+.checklist-editor__items {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.checklist-editor__empty {
+  padding: 0.85rem;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-align: center;
+  border: 2px dashed var(--color-border);
+}
+
+.checklist-editor__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.checklist-editor__checkbox {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  accent-color: var(--color-primary);
+}
+
+.checklist-editor__text {
+  min-width: 0;
+  padding: 0.65rem 0.75rem;
+  background: var(--color-surface-muted);
+  border: 2px solid var(--color-border);
+}
+
+.checklist-editor__remove {
+  display: grid;
+  width: 2.25rem;
+  aspect-ratio: 1;
+  color: var(--color-text);
+  font-size: 1.2rem;
+  background: var(--color-pink);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  place-items: center;
+}
+
 .notifications {
   position: fixed;
   z-index: 10;
@@ -141,6 +226,11 @@
 
 @media (max-width: 720px) {
   .form-row {
+    flex-direction: column;
+  }
+
+  .checklist-editor__header {
+    align-items: stretch;
     flex-direction: column;
   }
 }

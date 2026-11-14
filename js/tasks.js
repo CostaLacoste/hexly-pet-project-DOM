@@ -3,6 +3,37 @@ import { getTasks, setTasks } from "./state.js";
 const VALID_STATUSES = new Set(["todo", "progress", "done"]);
 const VALID_PRIORITIES = new Set(["low", "medium", "high"]);
 
+function createId() {
+  return typeof globalThis.crypto?.randomUUID === "function"
+    ? globalThis.crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function normalizeTags(tags) {
+  const values = Array.isArray(tags) ? tags : String(tags ?? "").split(",");
+
+  return [...new Set(
+    values
+      .map((tag) => String(tag).trim().toLowerCase().slice(0, 20))
+      .filter(Boolean),
+  )].slice(0, 5);
+}
+
+function normalizeChecklist(checklist) {
+  if (!Array.isArray(checklist)) {
+    return [];
+  }
+
+  return checklist
+    .map((item) => ({
+      id: String(item?.id || createId()),
+      text: String(item?.text ?? "").trim().slice(0, 100),
+      done: Boolean(item?.done),
+    }))
+    .filter((item) => item.text)
+    .slice(0, 8);
+}
+
 function normalizeTaskData(taskData) {
   const title = String(taskData.title ?? "").trim();
 
@@ -18,12 +49,14 @@ function normalizeTaskData(taskData) {
       ? taskData.priority
       : "low",
     deadline: String(taskData.deadline ?? ""),
+    tags: normalizeTags(taskData.tags),
+    checklist: normalizeChecklist(taskData.checklist),
   };
 }
 
 export function createTask(taskData) {
   const newTask = {
-    id: crypto.randomUUID(),
+    id: createId(),
     ...normalizeTaskData(taskData),
     createdAt: new Date().toISOString(),
   };
