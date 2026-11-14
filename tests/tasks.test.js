@@ -5,7 +5,9 @@ import { getTasks, setTasks } from "../js/state.js";
 import {
   createTask,
   deleteTask,
+  getRecurringTaskData,
   getTaskById,
+  moveTask,
   updateTask,
 } from "../js/tasks.js";
 
@@ -87,5 +89,35 @@ describe("задачи", () => {
     assert.equal(deleteTask(task.id), true);
     assert.equal(deleteTask(task.id), false);
     assert.equal(getTaskById(task.id), undefined);
+  });
+
+  test("создаёт данные следующей повторяющейся задачи", () => {
+    const next = getRecurringTaskData({
+      title: "Отчёт",
+      recurrence: "weekly",
+      deadline: "2026-11-14",
+      checklist: [{ id: "1", text: "Собрать данные", done: true }],
+    }, new Date(2026, 10, 14));
+
+    assert.equal(next.status, "todo");
+    assert.equal(next.deadline, "2026-11-21");
+    assert.equal(next.checklist[0].done, false);
+    assert.equal(next.checklist[0].id, "");
+  });
+
+  test("перемещает задачу и обновляет ручной порядок", () => {
+    setTasks([
+      { id: "a", title: "A", boardId: "default", status: "todo", priority: "low", order: 0 },
+      { id: "b", title: "B", boardId: "default", status: "progress", priority: "low", order: 0 },
+      { id: "c", title: "C", boardId: "default", status: "progress", priority: "low", order: 1 },
+    ]);
+
+    const moved = moveTask("a", "progress", "c");
+    const progressTasks = getTasks()
+      .filter((task) => task.status === "progress")
+      .sort((first, second) => first.order - second.order);
+
+    assert.equal(moved.status, "progress");
+    assert.deepEqual(progressTasks.map((task) => task.id), ["b", "a", "c"]);
   });
 });

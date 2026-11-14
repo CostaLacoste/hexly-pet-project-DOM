@@ -19,7 +19,19 @@
         <span>FLOWBOARD</span>
       </a>
 
-      <p class="header-note" aria-hidden="true">TASK SYSTEM / 01</p>
+      <div class="header-tools">
+        <button class="header-action" type="button" data-action="undo" disabled>
+          ↶ Отменить
+        </button>
+        <label class="theme-field">
+          <span class="visually-hidden">Тема оформления</span>
+          <select id="theme-select" aria-label="Тема оформления">
+            <option value="classic">Classic</option>
+            <option value="dark">Dark</option>
+            <option value="sunset">Sunset</option>
+          </select>
+        </label>
+      </div>
 
       <button class="primary-button" type="button" data-action="open-task-dialog">
         <span aria-hidden="true">＋</span>
@@ -29,10 +41,25 @@
     </header>
 
     <main class="app-shell">
+      <section class="workspace-bar" aria-label="Управление досками и данными">
+        <label class="workspace-bar__board">
+          <span>Доска</span>
+          <select id="board-select" aria-label="Активная доска"></select>
+        </label>
+        <div class="workspace-bar__actions">
+          <button type="button" data-action="create-board">+ Доска</button>
+          <button type="button" data-action="rename-board">Переименовать</button>
+          <button type="button" data-action="delete-board">Удалить</button>
+          <button type="button" data-action="export-workspace">Экспорт</button>
+          <button type="button" data-action="import-workspace">Импорт</button>
+          <input id="workspace-import" type="file" accept="application/json,.json" hidden />
+        </div>
+      </section>
+
       <section class="board-heading" aria-labelledby="board-title">
         <div class="board-heading__intro">
           <p class="eyebrow">Мой проект / Канбан</p>
-          <h1 id="board-title">Рабочая доска</h1>
+          <h1 id="board-title"><span id="active-board-name">Основная доска</span></h1>
           <p class="board-heading__description">
             Планируйте задачи, двигайте карточки и доводите идеи до результата.
           </p>
@@ -41,6 +68,26 @@
         <div class="board-summary" aria-label="Статистика доски">
           <span>Всего<br />задач</span>
           <strong id="total-task-count">0</strong>
+        </div>
+      </section>
+
+      <section class="analytics-panel" aria-label="Расширенная статистика">
+        <div class="analytics-card">
+          <div class="analytics-card__header">
+            <h2>Выполнено за 7 дней</h2>
+            <span data-week-total>0 задач</span>
+          </div>
+          <div class="weekly-chart" data-weekly-chart></div>
+        </div>
+        <div class="analytics-card analytics-card--priority">
+          <div class="analytics-card__header">
+            <h2>По приоритетам</h2>
+          </div>
+          <div class="priority-chart">
+            <div><span>Высокий</span><strong data-priority="high">0</strong></div>
+            <div><span>Средний</span><strong data-priority="medium">0</strong></div>
+            <div><span>Низкий</span><strong data-priority="low">0</strong></div>
+          </div>
         </div>
       </section>
 
@@ -96,6 +143,17 @@
           <span class="visually-hidden">Фильтр по тегу</span>
           <select id="tag-filter">
             <option value="all">Все теги</option>
+          </select>
+        </label>
+
+        <label class="select-field select-field--sort">
+          <span class="visually-hidden">Сортировка задач</span>
+          <select id="sort-select">
+            <option value="manual">Ручной порядок</option>
+            <option value="deadline">По сроку</option>
+            <option value="priority">По приоритету</option>
+            <option value="created">Сначала новые</option>
+            <option value="checklist">По чек-листу</option>
           </select>
         </label>
 
@@ -156,6 +214,14 @@
               <h2>Готово</h2>
             </div>
             <span class="task-counter" data-count-for="done">0</span>
+            <button
+              class="column-action"
+              type="button"
+              data-action="archive-done"
+              title="Архивировать выполненные задачи"
+            >
+              Архив
+            </button>
           </header>
 
           <div
@@ -235,10 +301,22 @@
           </label>
         </div>
 
-        <label class="form-field">
-          <span>Срок выполнения</span>
-          <input id="task-deadline" name="deadline" type="date" />
-        </label>
+        <div class="form-row">
+          <label class="form-field">
+            <span>Срок выполнения</span>
+            <input id="task-deadline" name="deadline" type="date" />
+          </label>
+
+          <label class="form-field">
+            <span>Повторение</span>
+            <select id="task-recurrence" name="recurrence">
+              <option value="none">Не повторять</option>
+              <option value="daily">Каждый день</option>
+              <option value="weekly">Каждую неделю</option>
+              <option value="monthly">Каждый месяц</option>
+            </select>
+          </label>
+        </div>
 
         <label class="form-field">
           <span>Теги</span>
@@ -275,6 +353,21 @@
       </form>
     </dialog>
 
+    <dialog id="archive-dialog" class="dialog" aria-labelledby="archive-dialog-title">
+      <div class="dialog__content">
+        <div class="dialog__header">
+          <div>
+            <p class="eyebrow">История</p>
+            <h2 id="archive-dialog-title">Архив задач</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Закрыть архив" data-action="close-archive">
+            ×
+          </button>
+        </div>
+        <div id="archive-list" class="archive-list"></div>
+      </div>
+    </dialog>
+
     <dialog id="delete-dialog" class="dialog dialog--small" aria-labelledby="delete-dialog-title">
       <div class="dialog__content">
         <div>
@@ -298,6 +391,7 @@
       <article class="task-card" draggable="true">
         <div class="task-card__header">
           <span class="priority-badge"></span>
+          <span class="recurrence-badge" hidden></span>
         </div>
         <div class="task-card__tags" aria-label="Теги задачи"></div>
         <h3 class="task-card__title"></h3>
@@ -348,6 +442,15 @@
     </template>
 
     <div id="notification-region" class="notifications" aria-live="polite"></div>
+
+    <button class="archive-fab" type="button" data-action="open-archive">
+      Архив <span id="archive-count">0</span>
+    </button>
+
+    <p class="keyboard-help">
+      <kbd>N</kbd> новая задача · <kbd>/</kbd> поиск · <kbd>⌘/Ctrl+Z</kbd> отмена ·
+      <kbd>Alt+←/→</kbd> перемещение карточки
+    </p>
 
     <noscript>
       <p class="noscript-message">Для работы приложения необходимо включить JavaScript.</p>

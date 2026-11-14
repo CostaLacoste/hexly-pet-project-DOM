@@ -8,6 +8,10 @@ const progressValue = document.querySelector('[data-stat="progress"]');
 const overdueTaskCount = document.querySelector('[data-stat="overdue"]');
 const checklistValue = document.querySelector('[data-stat="checklist"]');
 const progressBar = document.querySelector("[data-stat-progress-bar]");
+const weeklyChart = document.querySelector("[data-weekly-chart]");
+const weekTotal = document.querySelector("[data-week-total]");
+const archiveCount = document.querySelector("#archive-count");
+const archiveList = document.querySelector("#archive-list");
 
 const lists = {
   todo: document.querySelector('[data-task-list="todo"]'),
@@ -19,6 +23,12 @@ const priorityLabels = {
   low: "Низкий",
   medium: "Средний",
   high: "Высокий",
+};
+
+const recurrenceLabels = {
+  daily: "↻ ежедневно",
+  weekly: "↻ еженедельно",
+  monthly: "↻ ежемесячно",
 };
 
 function formatDeadline(deadline) {
@@ -89,6 +99,25 @@ function renderStats(tasks) {
   overdueTaskCount.textContent = String(stats.overdue);
   checklistValue.textContent = `${stats.checklistDone}/${stats.checklistTotal}`;
   progressBar.style.width = `${stats.progress}%`;
+
+  document.querySelector('[data-priority="high"]').textContent = String(stats.priority.high);
+  document.querySelector('[data-priority="medium"]').textContent = String(stats.priority.medium);
+  document.querySelector('[data-priority="low"]').textContent = String(stats.priority.low);
+
+  const maxCount = Math.max(1, ...stats.completionDays.map((day) => day.count));
+  weeklyChart.replaceChildren();
+  stats.completionDays.forEach((day) => {
+    const item = document.createElement("div");
+    item.className = "weekly-chart__day";
+    item.innerHTML = `
+      <span class="weekly-chart__value">${day.count}</span>
+      <span class="weekly-chart__bar" style="height: ${Math.max(8, (day.count / maxCount) * 100)}%"></span>
+      <span class="weekly-chart__label">${day.label}</span>
+    `;
+    weeklyChart.append(item);
+  });
+  const totalForWeek = stats.completionDays.reduce((sum, day) => sum + day.count, 0);
+  weekTotal.textContent = `${totalForWeek} ${totalForWeek === 1 ? "задача" : "задач"}`;
 }
 
 export function createTaskCard(task) {
@@ -98,6 +127,11 @@ export function createTaskCard(task) {
   const deadline = card.querySelector(".task-card__deadline");
 
   card.dataset.taskId = task.id;
+  card.tabIndex = 0;
+  card.setAttribute(
+    "aria-label",
+    `${task.title}. Alt и стрелки — переместить задачу`,
+  );
   card.querySelector(".task-card__title").textContent = task.title;
   renderTags(card, task);
   renderChecklist(card, task);
@@ -110,6 +144,12 @@ export function createTaskCard(task) {
 
   priority.textContent = priorityLabels[task.priority] ?? "Без приоритета";
   priority.classList.add(`priority-badge--${task.priority}`);
+
+  const recurrence = card.querySelector(".recurrence-badge");
+  if (recurrenceLabels[task.recurrence]) {
+    recurrence.hidden = false;
+    recurrence.textContent = recurrenceLabels[task.recurrence];
+  }
 
   if (task.deadline) {
     const overdue = isTaskOverdue(task);
@@ -142,6 +182,37 @@ export function renderBoard(visibleTasks, allTasks = visibleTasks) {
 
   totalTaskCount.textContent = String(allTasks.length);
   renderStats(allTasks);
+}
+
+export function renderArchive(tasks) {
+  archiveCount.textContent = String(tasks.length);
+  archiveList.replaceChildren();
+
+  if (tasks.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "archive-list__empty";
+    empty.textContent = "Архив пока пуст.";
+    archiveList.append(empty);
+    return;
+  }
+
+  tasks.forEach((task) => {
+    const item = document.createElement("article");
+    item.className = "archive-item";
+    item.dataset.taskId = task.id;
+
+    const title = document.createElement("h3");
+    title.textContent = task.title;
+    const meta = document.createElement("p");
+    meta.textContent = `${priorityLabels[task.priority] ?? "Без приоритета"} · ${task.tags?.map((tag) => `#${tag}`).join(" ") || "без тегов"}`;
+    const restore = document.createElement("button");
+    restore.className = "secondary-button";
+    restore.type = "button";
+    restore.dataset.action = "restore-task";
+    restore.textContent = "Восстановить";
+    item.append(title, meta, restore);
+    archiveList.append(item);
+  });
 }
 
 export function showNotification(message, type = "success") {

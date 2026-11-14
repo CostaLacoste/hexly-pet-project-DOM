@@ -28,22 +28,23 @@ describe("статистика", () => {
       { status: "todo", deadline: "2026-11-20" },
     ], now);
 
-    assert.deepEqual(stats, {
-      done: 1,
-      overdue: 1,
-      progress: 33,
-      checklistDone: 2,
-      checklistTotal: 3,
-    });
+    assert.equal(stats.done, 1);
+    assert.equal(stats.overdue, 1);
+    assert.equal(stats.progress, 33);
+    assert.equal(stats.checklistDone, 2);
+    assert.equal(stats.checklistTotal, 3);
+    assert.deepEqual(stats.priority, { high: 0, medium: 0, low: 0 });
+    assert.equal(stats.completionDays.length, 7);
   });
 
   test("возвращает нулевую статистику для пустого списка", () => {
-    assert.deepEqual(calculateStatistics([], now), {
-      done: 0,
-      overdue: 0,
-      progress: 0,
-      checklistDone: 0,
-      checklistTotal: 0,
-    });
+    const stats = calculateStatistics([], now);
+    assert.equal(stats.done, 0);
+    assert.equal(stats.overdue, 0);
+    assert.equal(stats.progress, 0);
+    assert.equal(stats.checklistDone, 0);
+    assert.equal(stats.checklistTotal, 0);
+    assert.deepEqual(stats.priority, { high: 0, medium: 0, low: 0 });
+    assert.equal(stats.completionDays.length, 7);
   });
 });

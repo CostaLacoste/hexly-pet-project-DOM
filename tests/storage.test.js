@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { after, beforeEach, describe, test } from "node:test";
 
-import { loadTasks, saveTasks } from "../js/storage.js";
+import {
+  loadBoards,
+  loadSetting,
+  loadTasks,
+  saveBoards,
+  saveSetting,
+  saveTasks,
+} from "../js/storage.js";
 
 const originalLocalStorage = globalThis.localStorage;
 
@@ -64,5 +71,14 @@ describe("локальное хранилище", () => {
 
     assert.equal(saveTasks([]), false);
     assert.equal(console.error.mock.callCount(), 1);
+  });
+
+  test("сохраняет доски и настройки", () => {
+    const boards = [{ id: "default", name: "Основная" }];
+    assert.equal(saveBoards(boards), true);
+    assert.equal(saveSetting("theme", "dark"), true);
+    assert.deepEqual(loadBoards(), boards);
+    assert.equal(loadSetting("theme", "classic"), "dark");
+    assert.equal(loadSetting("unknown", "fallback"), "fallback");
   });
 });

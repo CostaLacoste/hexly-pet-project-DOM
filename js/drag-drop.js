@@ -58,10 +58,12 @@ export function initDragAndDrop(board, onMove) {
     event.preventDefault();
     const taskId = event.dataTransfer.getData("text/plain");
     const newStatus = list.dataset.taskList;
+    const targetCard = event.target.closest(".task-card:not(.is-dragging)");
+    const beforeTaskId = targetCard?.dataset.taskId ?? null;
     clearDropHighlights(board);
 
     if (taskId && newStatus) {
-      onMove(taskId, newStatus);
+      onMove(taskId, newStatus, beforeTaskId);
     }
   });
 }

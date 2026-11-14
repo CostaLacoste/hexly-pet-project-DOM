@@ -2,6 +2,7 @@ import { getTasks, setTasks } from "./state.js";
 
 const VALID_STATUSES = new Set(["todo", "progress", "done"]);
 const VALID_PRIORITIES = new Set(["low", "medium", "high"]);
+const VALID_RECURRENCES = new Set(["none", "daily", "weekly", "monthly"]);
 
 function createId() {
   return typeof globalThis.crypto?.randomUUID === "function"
@@ -49,16 +50,24 @@ function normalizeTaskData(taskData) {
       ? taskData.priority
       : "low",
     deadline: String(taskData.deadline ?? ""),
+    boardId: String(taskData.boardId || "default"),
+    order: Number.isFinite(Number(taskData.order)) ? Number(taskData.order) : 0,
+    archived: Boolean(taskData.archived),
+    recurrence: VALID_RECURRENCES.has(taskData.recurrence)
+      ? taskData.recurrence
+      : "none",
     tags: normalizeTags(taskData.tags),
     checklist: normalizeChecklist(taskData.checklist),
   };
 }
 
 export function createTask(taskData) {
+  const normalized = normalizeTaskData(taskData);
   const newTask = {
     id: createId(),
-    ...normalizeTaskData(taskData),
+    ...normalized,
     createdAt: new Date().toISOString(),
+    completedAt: normalized.status === "done" ? new Date().toISOString() : "",
   };
 
   setTasks([...getTasks(), newTask]);
@@ -76,7 +85,16 @@ export function updateTask(id, changes) {
     ...currentTask,
     ...changes,
   });
-  const updatedTask = { ...currentTask, ...normalizedChanges };
+  const movedToDone = currentTask.status !== "done" && normalizedChanges.status === "done";
+  const updatedTask = {
+    ...currentTask,
+    ...normalizedChanges,
+    completedAt: movedToDone
+      ? new Date().toISOString()
+      : normalizedChanges.status === "done"
+        ? currentTask.completedAt || new Date().toISOString()
+        : "",
+  };
   const updatedTasks = getTasks().map((task) =>
     task.id === id ? updatedTask : task,
   );
@@ -99,4 +117,78 @@ export function deleteTask(id) {
 
 export function getTaskById(id) {
   return getTasks().find((task) => task.id === id);
+}
+
+function shiftDeadline(deadline, recurrence, now = new Date()) {
+  const base = deadline ? new Date(`${deadline}T12:00:00`) : new Date(now);
+
+  if (recurrence === "daily") {
+    base.setDate(base.getDate() + 1);
+  } else if (recurrence === "weekly") {
+    base.setDate(base.getDate() + 7);
+  } else if (recurrence === "monthly") {
+    base.setMonth(base.getMonth() + 1);
+  }
+
+  return [
+    base.getFullYear(),
+    String(base.getMonth() + 1).padStart(2, "0"),
+    String(base.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
+export function getRecurringTaskData(task, now = new Date()) {
+  if (!task || task.recurrence === "none") {
+    return null;
+  }
+
+  return {
+    ...task,
+    id: undefined,
+    status: "todo",
+    archived: false,
+    deadline: shiftDeadline(task.deadline, task.recurrence, now),
+    checklist: (task.checklist ?? []).map((item) => ({ ...item, id: "", done: false })),
+  };
+}
+
+export function moveTask(taskId, newStatus, beforeTaskId = null) {
+  const allTasks = getTasks();
+  const movingTask = allTasks.find((task) => task.id === taskId);
+
+  if (!movingTask) {
+    return null;
+  }
+
+  const peers = allTasks
+    .filter((task) =>
+      task.id !== taskId &&
+      task.boardId === movingTask.boardId &&
+      !task.archived &&
+      task.status === newStatus,
+    )
+    .sort((first, second) => first.order - second.order);
+  const foundIndex = beforeTaskId
+    ? peers.findIndex((task) => task.id === beforeTaskId)
+    : -1;
+  const insertAt = foundIndex >= 0 ? foundIndex : peers.length;
+  peers.splice(insertAt, 0, { ...movingTask, status: newStatus });
+
+  const orderById = new Map(peers.map((task, index) => [task.id, index]));
+  const updatedTasks = allTasks.map((task) =>
+    orderById.has(task.id)
+      ? {
+          ...task,
+          status: task.id === taskId ? newStatus : task.status,
+          completedAt: task.id === taskId
+            ? newStatus === "done"
+              ? task.completedAt || new Date().toISOString()
+              : ""
+            : task.completedAt,
+          order: orderById.get(task.id),
+        }
+      : task,
+  );
+  setTasks(updatedTasks);
+  return getTaskById(taskId);
 }
